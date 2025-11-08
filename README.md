@@ -28,7 +28,7 @@ _WIP_
 
 ### Manually
 
-Clone the repository and build/intall with the build script:
+Clone the repository and build/install with the build script:
 
 ```bash
 $ ./scripts/build.sh -i
