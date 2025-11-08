@@ -1,0 +1,4 @@
+/* Disable shading for area selector in screenshot UI */
+.screenshot-ui-area-selector .screenshot-ui-area-indicator-shade {
+  background-color: transparent !important;
+}

@@ -1,0 +1,8 @@
+{
+  "uuid": "no-screenshot-dimming@danny-kuehn-on-github",
+  "name": "No Screenshot Dimming",
+  "description": "Removes the dimmed background during screenshot selection.",
+  "version": 1,
+  "shell-version": ["49"],
+  "url": "https://github.com/danny-kuehn/no-screenshot-dimming"
+}
