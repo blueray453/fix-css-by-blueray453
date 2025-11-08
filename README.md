@@ -16,11 +16,9 @@ region.
 
 ### GNOME Extensions Website
 
-_WIP_
+This extension is available on the [GNOME Extensions Website][extension-url].
 
-<!-- This extension is available on the [GNOME Extensions Website][extension-url].
-
-[![badge]][extension-url] -->
+[![badge]][extension-url]
 
 ### AUR
 
@@ -43,6 +41,6 @@ version 3 or later - see the [LICENSE] file for details.
 
 [before]: img/before.webp
 [after]: img/after.webp
-[extension-url]: https://extensions.gnome.org/extension/XXXX/XXXX
+[extension-url]: https://extensions.gnome.org/extension/8785/no-screenshot-dimming
 [badge]: img/ego.svg
 [LICENSE]: LICENSE
