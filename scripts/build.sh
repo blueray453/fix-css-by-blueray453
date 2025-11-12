@@ -2,22 +2,18 @@
 
 set -e
 
-cd "$(cd "$(dirname "$0")" && pwd)/.."
+cd "$(dirname "$(realpath "$0")")/.."
 
 echo >&2 "Packing extension..."
-
 gnome-extensions pack src --force --extra-source="../LICENSE"
-
 echo >&2 "Packed."
 
 while getopts i flag; do
-  case $flag in
+  case "$flag" in
     i)
       echo >&2 "Installing extension..."
-
       gnome-extensions install --force \
         no-screenshot-dimming@danny-kuehn-on-github.shell-extension.zip
-
       echo >&2 "Installed. Reload GNOME Shell."
       ;;
     *)
