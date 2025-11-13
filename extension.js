@@ -24,14 +24,34 @@ export default class NotificationThemeExtension extends Extension {
 
       const header = notification?.get_child_at_index(0);
       const headerContent = header?.get_child_at_index(1);
+      const headerContentSource = headerContent?.get_child_at_index(0);
       const headerContentTime = headerContent?.get_child_at_index(1);
 
+      const content = notification?.get_child_at_index(1);
+      const contentContent = content?.get_child_at_index(1);
+      const contentContentTitle = contentContent?.get_child_at_index(0);
+      const contentContentBody = contentContent?.get_child_at_index(1);
+
+      // Set app name to green
+      if (headerContentSource) {
+        headerContentSource.set_style('color: #00ff00;');
+      }
+
+      // Set time to red
       if (headerContentTime) {
-        // Set time color to red (RGB: 255, 0, 0, alpha: 1.0)
-        headerContentTime.set_style('color: #3f3f3f;');
+        headerContentTime.set_style('color: #ff0000;');
+      }
+
+      // Set title to yellow
+      if (contentContentTitle) {
+        contentContentTitle.set_style('color: #ffff00;');
+      }
+
+      // Set body to blue
+      if (contentContentBody) {
+        contentContentBody.set_style('color: #0000ff;');
       }
     });
-
   }
 
   disable() {
