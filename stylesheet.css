@@ -1,9 +1,28 @@
-/* Disable dimming for the screenshot area selector */
-.screenshot-ui-area-selector .screenshot-ui-area-indicator-shade {
-  background-color: transparent !important;
+.calendar-day {
+  width: 100px;
+  height: 100px;
+  /* padding-right: 40px; */
 }
 
-/* GNOME blue border for better visibility on white backgrounds */
-.screenshot-ui-area-selector .screenshot-ui-area-indicator-selection {
-  border: 2px #3584e4 !important;
+.calendar-day.calendar-weekday {
+  padding: 0px;
+  /* color: red; */
+  /* border: 1px solid red; */
+}
+
+.calendar-day.calendar-weekend {
+  padding: 0px;
+  /* color: green; */
+  /* border: 1px solid red; */
+}
+
+.calendar-day.calendar-today {
+  /* background: yellow; */
+}
+
+.calendar-day-heading {
+  text-align: center;
+  /* background: peru; */
+  margin: 0px;
+  padding: 20px;
 }

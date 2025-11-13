@@ -1,4 +1,4 @@
-export default class NoScreenshotDimming {
+export default class FixCSS {
   enable() {
     // Nothing to do; stylesheet.css handles everything
   }
