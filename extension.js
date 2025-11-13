@@ -53,12 +53,7 @@ export default class NotificationThemeExtension extends Extension {
       const content = notification?.get_child_at_index(1);
       const contentContent = content?.get_child_at_index(1);
       const contentContentTitle = contentContent?.get_child_at_index(0);
-      const contentContentBody = contentContent?.get_child_at_index(1);
-
-
-      // journal(`headerContentSource: ${headerContentSource.get_style_class_name()}`);
-      // journal(`headerContentSource: ${headerContentSource.get_style()}`);
-      // journal(`headerContentSource: ${headerContentSource.get_style_pseudo_class()}`);
+      const contentContentBody = contentContent?.get_child_at_index(1).get_first_child();
 
       const bgColor = notificationContainer.get_theme_node().get_background_color();
       const bgColorHex = this.coglColorToHex(bgColor);
