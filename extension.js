@@ -1,10 +1,7 @@
-import Gio from 'gi://Gio';
-import Clutter from 'gi://Clutter';
-import St from 'gi://St';
-import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
+import GLib from 'gi://GLib';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
-
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import { setLogging, setLogFn, journal } from './utils.js'
 
 export default class NotificationThemeExtension extends Extension {
   constructor(metadata) {
@@ -16,11 +13,40 @@ export default class NotificationThemeExtension extends Extension {
     // Main.notify('My Extension', 'This is a notification from my GNOME extension!');
     // global.notify_error("msg", "details");
     // Nothing to do; stylesheet.css handles everything
+
+    setLogFn((msg, error = false) => {
+      let level;
+      if (error) {
+        level = GLib.LogLevelFlags.LEVEL_CRITICAL;
+      } else {
+        level = GLib.LogLevelFlags.LEVEL_MESSAGE;
+      }
+
+      GLib.log_structured(
+        'fix-css-by-blueray453',
+        level,
+        {
+          MESSAGE: `${msg}`,
+          SYSLOG_IDENTIFIER: 'fix-css-by-blueray453',
+          CODE_FILE: GLib.filename_from_uri(import.meta.url)[0]
+        }
+      );
+    });
+
+    setLogging(true);
+
+    // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
+
+    journal(`Enabled`);
+
+
     const messageTrayContainer = Main.messageTray.get_first_child();
 
     this._themeSignalId = messageTrayContainer?.connect("child-added", () => {
       const notificationContainer = messageTrayContainer?.get_first_child();
       const notification = notificationContainer?.get_first_child();
+
+      journal(`notification: ${notification}`);
 
       const header = notification?.get_child_at_index(0);
       const headerContent = header?.get_child_at_index(1);
@@ -34,6 +60,21 @@ export default class NotificationThemeExtension extends Extension {
 
       // Set app name to green
       if (headerContentSource) {
+        journal(`headerContentSource: ${headerContentSource}`);
+        // journal(`headerContentSource: ${headerContentSource.get_style_class_name()}`);
+        // journal(`headerContentSource: ${headerContentSource.get_style()}`);
+        // journal(`headerContentSource: ${headerContentSource.get_style_pseudo_class()}`);
+
+        const bgColor = notificationContainer.get_theme_node().get_background_color();
+        journal(`bgColor is ${bgColor}`);
+        if (bgColor) {
+          const { red, green, blue } = bgColor;
+
+          journal(`Red: ${red}`);
+          journal(`Green: ${green}`);
+          journal(`Blue: ${blue}`);
+        }
+
         headerContentSource.set_style('color: #00ff00;');
       }
 
@@ -56,22 +97,11 @@ export default class NotificationThemeExtension extends Extension {
       if (notificationContainer) {
         // Get current background color (for inspection)
         const currentBackground = notificationContainer.get_style();
-        console.log('Current notification background style:', currentBackground);
+        journal(`Current notification background style: ${currentBackground}`);
 
         // Set new background to purple
         notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
       }
-
-      // const bgColor = notificationContainer.get_background_color();
-      // console.log('bgColor is ${bgColor}');
-      // if (bgColor) {
-      //     const red = Math.round(bgColor.red / 255);
-      //     const green = Math.round(bgColor.green / 255);
-      //     const blue = Math.round(bgColor.blue / 255);
-      //     const alpha = bgColor.alpha / 255;
-      //     console.log('Computed BG color:', { red, green, blue, alpha });
-      //     console.log('Hex:', `#${red.toString(16)}${green.toString(16)}${blue.toString(16)}`);
-      // }
     });
   }
 
