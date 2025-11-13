@@ -26,3 +26,7 @@
   margin: 0px;
   padding: 20px;
 }
+
+.notification-banner {
+  border: 1px solid red;
+}
