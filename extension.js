@@ -55,23 +55,25 @@ export default class NotificationThemeExtension extends Extension {
       const contentContentTitle = contentContent?.get_child_at_index(0);
       const contentContentBody = contentContent?.get_child_at_index(1).get_first_child();
 
-      const bgColor = notificationContainer.get_theme_node().get_background_color();
-      const bgColorHex = this.coglColorToHex(bgColor);
+      headerContentTime.destroy();
 
-      headerContentTime.set_style(`color: ${bgColorHex};`);
-      // headerContentSource.set_style('color: #00ff00;');
-      // contentContentTitle.set_style('color: #ffff00;');
-      // contentContentBody.set_style('color: #0000ff;');
-      // notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
+      // const bgColor = notificationContainer.get_theme_node().get_background_color();
+      // const bgColorHex = this.coglColorToHex(bgColor);
+
+      // headerContentTime.set_style(`color: ${bgColorHex};`);
+      // // headerContentSource.set_style('color: #00ff00;');
+      // // contentContentTitle.set_style('color: #ffff00;');
+      // // contentContentBody.set_style('color: #0000ff;');
+      // // notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
     });
   }
 
-  coglColorToHex(coglColor) {
-    const { red, green, blue } = coglColor;
+  // coglColorToHex(coglColor) {
+  //   const { red, green, blue } = coglColor;
 
-    const toHex = n => n.toString(16).padStart(2, '0');
-    return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
-  }
+  //   const toHex = n => n.toString(16).padStart(2, '0');
+  //   return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+  // }
 
   disable() {
     if (this._themeSignalId) {
