@@ -51,6 +51,26 @@ export default class NotificationThemeExtension extends Extension {
       if (contentContentBody) {
         contentContentBody.set_style('color: #0000ff;');
       }
+
+      // Set background to purple and log current background
+      if (notificationContainer) {
+        // Get current background color (for inspection)
+        const currentBackground = notificationContainer.get_style_class_name();
+        console.log('Current notification background style:', currentBackground);
+
+        // Set new background to purple
+        notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
+      }
+
+      const bgColor = notificationContainer.get_background_color();
+      if (bgColor) {
+          const red = Math.round(bgColor.red / 255);
+          const green = Math.round(bgColor.green / 255);
+          const blue = Math.round(bgColor.blue / 255);
+          const alpha = bgColor.alpha / 255;
+          console.log('Computed BG color:', { red, green, blue, alpha });
+          console.log('Hex:', `#${red.toString(16)}${green.toString(16)}${blue.toString(16)}`);
+      }
     });
   }
 
