@@ -36,7 +36,6 @@ export default class NotificationThemeExtension extends Extension {
     setLogging(true);
 
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
-
     journal(`Enabled`);
 
 
@@ -45,8 +44,6 @@ export default class NotificationThemeExtension extends Extension {
     this._themeSignalId = messageTrayContainer?.connect("child-added", () => {
       const notificationContainer = messageTrayContainer?.get_first_child();
       const notification = notificationContainer?.get_first_child();
-
-      journal(`notification: ${notification}`);
 
       const header = notification?.get_child_at_index(0);
       const headerContent = header?.get_child_at_index(1);
@@ -58,51 +55,27 @@ export default class NotificationThemeExtension extends Extension {
       const contentContentTitle = contentContent?.get_child_at_index(0);
       const contentContentBody = contentContent?.get_child_at_index(1);
 
-      // Set app name to green
-      if (headerContentSource) {
-        journal(`headerContentSource: ${headerContentSource}`);
-        // journal(`headerContentSource: ${headerContentSource.get_style_class_name()}`);
-        // journal(`headerContentSource: ${headerContentSource.get_style()}`);
-        // journal(`headerContentSource: ${headerContentSource.get_style_pseudo_class()}`);
 
-        const bgColor = notificationContainer.get_theme_node().get_background_color();
-        journal(`bgColor is ${bgColor}`);
-        if (bgColor) {
-          const { red, green, blue } = bgColor;
+      // journal(`headerContentSource: ${headerContentSource.get_style_class_name()}`);
+      // journal(`headerContentSource: ${headerContentSource.get_style()}`);
+      // journal(`headerContentSource: ${headerContentSource.get_style_pseudo_class()}`);
 
-          journal(`Red: ${red}`);
-          journal(`Green: ${green}`);
-          journal(`Blue: ${blue}`);
-        }
+      const bgColor = notificationContainer.get_theme_node().get_background_color();
+      const bgColorHex = this.coglColorToHex(bgColor);
 
-        headerContentSource.set_style('color: #00ff00;');
-      }
-
-      // Set time to red
-      if (headerContentTime) {
-        headerContentTime.set_style('color: #ff0000;');
-      }
-
-      // Set title to yellow
-      if (contentContentTitle) {
-        contentContentTitle.set_style('color: #ffff00;');
-      }
-
-      // Set body to blue
-      if (contentContentBody) {
-        contentContentBody.set_style('color: #0000ff;');
-      }
-
-      // Set background to purple and log current background
-      if (notificationContainer) {
-        // Get current background color (for inspection)
-        const currentBackground = notificationContainer.get_style();
-        journal(`Current notification background style: ${currentBackground}`);
-
-        // Set new background to purple
-        notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
-      }
+      headerContentTime.set_style(`color: ${bgColorHex};`);
+      // headerContentSource.set_style('color: #00ff00;');
+      // contentContentTitle.set_style('color: #ffff00;');
+      // contentContentBody.set_style('color: #0000ff;');
+      // notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
     });
+  }
+
+  coglColorToHex(coglColor) {
+    const { red, green, blue } = coglColor;
+
+    const toHex = n => n.toString(16).padStart(2, '0');
+    return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
   }
 
   disable() {
