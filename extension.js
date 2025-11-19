@@ -1,7 +1,11 @@
 import GLib from 'gi://GLib';
+import Shell from 'gi://Shell';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { setLogging, setLogFn, journal } from './utils.js'
+
+const DateMenu = Main.panel.statusArea.dateMenu;
+let handId = null;
 
 export default class NotificationThemeExtension extends Extension {
   constructor(metadata) {
@@ -38,6 +42,9 @@ export default class NotificationThemeExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
 
+    DateMenu._calendar._weekStart = 6; // Saturday
+
+    DateMenu._calendar._onSettingsChange();
 
     const messageTrayContainer = Main.messageTray.get_first_child();
 
@@ -80,6 +87,13 @@ export default class NotificationThemeExtension extends Extension {
       const messageTrayContainer = Main.messageTray.get_first_child();
       messageTrayContainer?.disconnect(this._themeSignalId);
       this._themeSignalId = null;
+    }
+
+    DateMenu._calendar._weekStart = Shell.util_get_week_start();
+    DateMenu._calendar._onSettingsChange();
+    if (handId) {
+      this._settings.disconnect(handId);
+      handId = null;
     }
   }
 }
