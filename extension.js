@@ -86,36 +86,6 @@ export default class NotificationThemeExtension extends Extension {
       "workspace-indicator",
     ];
 
-    const panel = Main.panel;
-    const centerBox = panel._centerBox;
-
-    if (!centerBox) return;
-
-    journal('=== Moving items to center box ===');
-
-    // Remove items from their current boxes and add to center
-    CENTER_ORDER.forEach(role => {
-      const indicator = panel.statusArea[role];
-      if (indicator && indicator.container) {
-        const container = indicator.container;
-
-        // Remove from current parent if it exists
-        const currentParent = container.get_parent();
-        if (currentParent) {
-          currentParent.remove_child(container);
-        }
-
-        // Add to center box
-        centerBox.add_child(container);
-        journal(`Moved to center: ${role}`);
-      } else {
-        journal(`NOT FOUND: ${role}`);
-      }
-    });
-
-    journal('=== Center box organization complete ===');
-
-    // Hardcoded center box order - using the actual roles from your log
     const RIGHT_ORDER = [
       "currentworkspacename@jaybeeunix.dev",
       "screenRecording",
@@ -130,33 +100,9 @@ export default class NotificationThemeExtension extends Extension {
       "keyboard",
     ];
 
-    const rightBox = panel._rightBox;
-
-    if (!rightBox) return;
-
-    journal('=== Moving items to right box ===');
-
-    // Remove items from their current boxes and add to right
-    RIGHT_ORDER.forEach(role => {
-      const indicator = panel.statusArea[role];
-      if (indicator && indicator.container) {
-        const container = indicator.container;
-
-        // Remove from current parent if it exists
-        const currentParent = container.get_parent();
-        if (currentParent) {
-          currentParent.remove_child(container);
-        }
-
-        // Add to right box
-        rightBox.add_child(container);
-        journal(`Moved to right: ${role}`);
-      } else {
-        journal(`NOT FOUND: ${role}`);
-      }
-    });
-
-    journal('=== Right box organization complete ===');
+    // Organize both boxes
+    this.organizePanelItems('center', CENTER_ORDER);
+    this.organizePanelItems('right', RIGHT_ORDER);
 
     DateMenu._calendar._weekStart = 6; // Saturday
 
@@ -189,6 +135,40 @@ export default class NotificationThemeExtension extends Extension {
       // // contentContentBody.set_style('color: #0000ff;');
       // // notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
     });
+  }
+
+  organizePanelItems(boxType, itemOrder) {
+    const panel = Main.panel;
+    const box = panel[`_${boxType}Box`];
+
+    if (!box) {
+      journal(`ERROR: ${boxType} box not found`);
+      return;
+    }
+
+    journal(`=== Moving items to ${boxType} box ===`);
+
+    // Remove items from their current boxes and add to target box
+    itemOrder.forEach(role => {
+      const indicator = panel.statusArea[role];
+      if (indicator && indicator.container) {
+        const container = indicator.container;
+
+        // Remove from current parent if it exists
+        const currentParent = container.get_parent();
+        if (currentParent) {
+          currentParent.remove_child(container);
+        }
+
+        // Add to target box
+        box.add_child(container);
+        journal(`Moved to ${boxType}: ${role}`);
+      } else {
+        journal(`NOT FOUND: ${role}`);
+      }
+    });
+
+    journal(`=== ${boxType} box organization complete ===`);
   }
 
   // coglColorToHex(coglColor) {
