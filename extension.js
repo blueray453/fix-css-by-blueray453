@@ -41,6 +41,44 @@ export default class NotificationThemeExtension extends Extension {
 
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
+    // Have to enable disable as this needs to be the last
+    // The following code needs to be run after the menu is populated
+    // See what's currently in each box
+    journal('=== LEFT BOX ===');
+    Main.panel._leftBox.get_children().forEach((child, index) => {
+      let role = null;
+      for (const r in Main.panel.statusArea) {
+        if (Main.panel.statusArea[r].container === child) {
+          role = r;
+          break;
+        }
+      }
+      journal(`[${index}]: ${role || 'unknown'}`);
+    });
+
+    journal('=== CENTER BOX ===');
+    Main.panel._centerBox.get_children().forEach((child, index) => {
+      let role = null;
+      for (const r in Main.panel.statusArea) {
+        if (Main.panel.statusArea[r].container === child) {
+          role = r;
+          break;
+        }
+      }
+      journal(`[${index}]: ${role || 'unknown'}`);
+    });
+
+    journal('=== RIGHT BOX ===');
+    Main.panel._rightBox.get_children().forEach((child, index) => {
+      let role = null;
+      for (const r in Main.panel.statusArea) {
+        if (Main.panel.statusArea[r].container === child) {
+          role = r;
+          break;
+        }
+      }
+      journal(`[${index}]: ${role || 'unknown'}`);
+    });
 
     DateMenu._calendar._weekStart = 6; // Saturday
 
