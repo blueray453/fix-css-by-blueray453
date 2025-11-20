@@ -100,9 +100,14 @@ export default class NotificationThemeExtension extends Extension {
       "athan@goodm4ven",
     ];
 
-    // Organize both boxes
-    this.organizePanelItems('center', CENTER_ORDER);
-    this.organizePanelItems('right', RIGHT_ORDER);
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
+      // Organize both boxes
+      this.organizePanelItems('center', CENTER_ORDER);
+      this.organizePanelItems('right', RIGHT_ORDER);
+      return GLib.SOURCE_REMOVE;   // run ONLY once
+    });
+
+
 
     // Main.panel._centerBox.connect('child-added', (actor, child) => {
     //   // Find the role for this child, same as your for-loop logic
