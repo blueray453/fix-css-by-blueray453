@@ -120,6 +120,26 @@ export default class NotificationThemeExtension extends Extension {
     //   journal(`role: ${role || 'unknown'}`);
     // });
 
+    // // Stamp the panel role onto each container
+    // for (const role in Main.panel.statusArea) {
+    //   const obj = Main.panel.statusArea[role];
+
+    //   // Only stamp if container exists
+    //   if (obj && obj.container) {
+    //     obj.container._panelRole = role;
+    //   }
+    // }
+
+    // // Now you can use child-added easily
+    // this._centerAddedId = Main.panel._centerBox.connect(
+    //   'child-added',
+    //   (actor, child) => {
+    //     journal('=== CHILD ADDED ===');
+    //     journal('child: ' + child);
+    //     journal('role: ' + (child._panelRole || 'unknown'));
+    //   }
+    // );
+
     DateMenu._calendar._weekStart = 6; // Saturday
 
     DateMenu._calendar._onSettingsChange();
