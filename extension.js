@@ -88,16 +88,16 @@ export default class NotificationThemeExtension extends Extension {
 
     const RIGHT_ORDER = [
       "currentworkspacename@jaybeeunix.dev",
-      "screenRecording",
-      "screenSharing",
       "printers",
       "lockkeys@febueldo.test",
       "color-picker@tuberry", // Fixed: removed space
       "clipboardIndicator",
-      "athan@goodm4ven",
       "dwellClick",
+      "screenRecording",
+      "screenSharing",
       "a11y",
       "keyboard",
+      "athan@goodm4ven",
     ];
 
     // Organize both boxes
