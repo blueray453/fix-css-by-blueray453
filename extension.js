@@ -100,14 +100,15 @@ export default class NotificationThemeExtension extends Extension {
       "athan@goodm4ven",
     ];
 
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
-      // Organize both boxes
-      this.organizePanelItems('center', CENTER_ORDER);
-      this.organizePanelItems('right', RIGHT_ORDER);
-      return GLib.SOURCE_REMOVE;   // run ONLY once
-    });
+    // GLib.timeout_add(GLib.PRIORITY_DEFAULT, 000, () => {
+    //   // Organize both boxes
+    //   this.organizePanelItems('center', CENTER_ORDER);
+    //   this.organizePanelItems('right', RIGHT_ORDER);
+    //   return GLib.SOURCE_REMOVE;   // run ONLY once
+    // });
 
-
+    this.watchPanelBox('center', CENTER_ORDER);
+    this.watchPanelBox('right', RIGHT_ORDER);
 
     // Main.panel._centerBox.connect('child-added', (actor, child) => {
     //   // Find the role for this child, same as your for-loop logic
@@ -175,6 +176,38 @@ export default class NotificationThemeExtension extends Extension {
       // // contentContentTitle.set_style('color: #ffff00;');
       // // contentContentBody.set_style('color: #0000ff;');
       // // notificationContainer.set_style('background-color: #6a0dad; border-radius: 12px;');
+    });
+  }
+
+  watchPanelBox(boxType, itemOrder, delay = 1000) {
+    const box = Main.panel[`_${boxType}Box`];
+    let timer = null;
+    let signalId = null;
+
+    signalId = box.connect('child-added', (actor, child) => {
+      journal(`Child added in ${boxType}: ${child}`);
+
+      // Reset timer if already running
+      if (timer) {
+        GLib.source_remove(timer);
+        timer = null;
+      }
+
+      timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+        timer = null;
+        journal(`No new children added in ${boxType}Box for ${delay}ms — panel ready!`);
+
+        // Disconnect first to avoid retriggering
+        if (signalId) {
+          box.disconnect(signalId);
+          signalId = null;
+        }
+
+        // Organize children safely
+        this.organizePanelItems(boxType, itemOrder);
+
+        return GLib.SOURCE_REMOVE;
+      });
     });
   }
 
