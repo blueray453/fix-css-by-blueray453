@@ -41,44 +41,88 @@ export default class NotificationThemeExtension extends Extension {
 
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
-    // Have to enable disable as this needs to be the last
-    // The following code needs to be run after the menu is populated
-    // See what's currently in each box
-    journal('=== LEFT BOX ===');
-    Main.panel._leftBox.get_children().forEach((child, index) => {
-      let role = null;
-      for (const r in Main.panel.statusArea) {
-        if (Main.panel.statusArea[r].container === child) {
-          role = r;
-          break;
+    // // Have to enable disable as this needs to be the last
+    // // The following code needs to be run after the menu is populated
+    // // See what's currently in each box
+    // journal('=== LEFT BOX ===');
+    // Main.panel._leftBox.get_children().forEach((child, index) => {
+    //   let role = null;
+    //   for (const r in Main.panel.statusArea) {
+    //     if (Main.panel.statusArea[r].container === child) {
+    //       role = r;
+    //       break;
+    //     }
+    //   }
+    //   journal(`[${index}]: ${role || 'unknown'}`);
+    // });
+
+    // journal('=== CENTER BOX ===');
+    // Main.panel._centerBox.get_children().forEach((child, index) => {
+    //   let role = null;
+    //   for (const r in Main.panel.statusArea) {
+    //     if (Main.panel.statusArea[r].container === child) {
+    //       role = r;
+    //       break;
+    //     }
+    //   }
+    //   journal(`[${index}]: ${role || 'unknown'}`);
+    // });
+
+    // journal('=== RIGHT BOX ===');
+    // Main.panel._rightBox.get_children().forEach((child, index) => {
+    //   let role = null;
+    //   for (const r in Main.panel.statusArea) {
+    //     if (Main.panel.statusArea[r].container === child) {
+    //       role = r;
+    //       break;
+    //     }
+    //   }
+    //   journal(`[${index}]: ${role || 'unknown'}`);
+    // });
+
+    // Hardcoded center box order - using the actual roles from your log
+    const CENTER_ORDER = [
+      "currentworkspacename@jaybeeunix.dev",
+      "screenRecording",
+      "screenSharing",
+      "printers",
+      "lockkeys@febueldo.test",
+      "color-picker@tuberry", // Fixed: removed space
+      "clipboardIndicator",
+      "athan@goodm4ven",
+      "dwellClick",
+      "a11y",
+      "keyboard",
+    ];
+
+    const panel = Main.panel;
+    const rightBox = panel._rightBox;
+
+    if (!rightBox) return;
+
+    journal('=== Moving items to center box ===');
+
+    // Remove items from their current boxes and add to center
+    CENTER_ORDER.forEach(role => {
+      const indicator = panel.statusArea[role];
+      if (indicator && indicator.container) {
+        const container = indicator.container;
+
+        // Remove from current parent if it exists
+        const currentParent = container.get_parent();
+        if (currentParent) {
+          currentParent.remove_child(container);
         }
+
+        // Add to center box
+        rightBox.add_child(container);
+        journal(`Moved to center: ${role}`);
+      } else {
+        journal(`NOT FOUND: ${role}`);
       }
-      journal(`[${index}]: ${role || 'unknown'}`);
     });
 
-    journal('=== CENTER BOX ===');
-    Main.panel._centerBox.get_children().forEach((child, index) => {
-      let role = null;
-      for (const r in Main.panel.statusArea) {
-        if (Main.panel.statusArea[r].container === child) {
-          role = r;
-          break;
-        }
-      }
-      journal(`[${index}]: ${role || 'unknown'}`);
-    });
-
-    journal('=== RIGHT BOX ===');
-    Main.panel._rightBox.get_children().forEach((child, index) => {
-      let role = null;
-      for (const r in Main.panel.statusArea) {
-        if (Main.panel.statusArea[r].container === child) {
-          role = r;
-          break;
-        }
-      }
-      journal(`[${index}]: ${role || 'unknown'}`);
-    });
+    journal('=== Center box organization complete ===');
 
     DateMenu._calendar._weekStart = 6; // Saturday
 
