@@ -104,6 +104,22 @@ export default class NotificationThemeExtension extends Extension {
     this.organizePanelItems('center', CENTER_ORDER);
     this.organizePanelItems('right', RIGHT_ORDER);
 
+    // Main.panel._centerBox.connect('child-added', (actor, child) => {
+    //   // Find the role for this child, same as your for-loop logic
+    //   let role = null;
+
+    //   for (const r in Main.panel.statusArea) {
+    //     if (Main.panel.statusArea[r].container === child) {
+    //       role = r;
+    //       break;
+    //     }
+    //   }
+
+    //   journal('=== NEW CHILD ADDED TO CENTER BOX ===');
+    //   journal(`child: ${child}`);
+    //   journal(`role: ${role || 'unknown'}`);
+    // });
+
     DateMenu._calendar._weekStart = 6; // Saturday
 
     DateMenu._calendar._onSettingsChange();
