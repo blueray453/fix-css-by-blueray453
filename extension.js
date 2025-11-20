@@ -80,25 +80,16 @@ export default class NotificationThemeExtension extends Extension {
     //   journal(`[${index}]: ${role || 'unknown'}`);
     // });
 
-    // Hardcoded center box order - using the actual roles from your log
+    // Hardcoded center box order
     const CENTER_ORDER = [
-      "currentworkspacename@jaybeeunix.dev",
-      "screenRecording",
-      "screenSharing",
-      "printers",
-      "lockkeys@febueldo.test",
-      "color-picker@tuberry", // Fixed: removed space
-      "clipboardIndicator",
-      "athan@goodm4ven",
-      "dwellClick",
-      "a11y",
-      "keyboard",
+      "ShowNetSpeedButton",
+      "workspace-indicator",
     ];
 
     const panel = Main.panel;
-    const rightBox = panel._rightBox;
+    const centerBox = panel._centerBox;
 
-    if (!rightBox) return;
+    if (!centerBox) return;
 
     journal('=== Moving items to center box ===');
 
@@ -115,7 +106,7 @@ export default class NotificationThemeExtension extends Extension {
         }
 
         // Add to center box
-        rightBox.add_child(container);
+        centerBox.add_child(container);
         journal(`Moved to center: ${role}`);
       } else {
         journal(`NOT FOUND: ${role}`);
@@ -123,6 +114,49 @@ export default class NotificationThemeExtension extends Extension {
     });
 
     journal('=== Center box organization complete ===');
+
+    // Hardcoded center box order - using the actual roles from your log
+    const RIGHT_ORDER = [
+      "currentworkspacename@jaybeeunix.dev",
+      "screenRecording",
+      "screenSharing",
+      "printers",
+      "lockkeys@febueldo.test",
+      "color-picker@tuberry", // Fixed: removed space
+      "clipboardIndicator",
+      "athan@goodm4ven",
+      "dwellClick",
+      "a11y",
+      "keyboard",
+    ];
+
+    const rightBox = panel._rightBox;
+
+    if (!rightBox) return;
+
+    journal('=== Moving items to right box ===');
+
+    // Remove items from their current boxes and add to right
+    RIGHT_ORDER.forEach(role => {
+      const indicator = panel.statusArea[role];
+      if (indicator && indicator.container) {
+        const container = indicator.container;
+
+        // Remove from current parent if it exists
+        const currentParent = container.get_parent();
+        if (currentParent) {
+          currentParent.remove_child(container);
+        }
+
+        // Add to right box
+        rightBox.add_child(container);
+        journal(`Moved to right: ${role}`);
+      } else {
+        journal(`NOT FOUND: ${role}`);
+      }
+    });
+
+    journal('=== Right box organization complete ===');
 
     DateMenu._calendar._weekStart = 6; // Saturday
 
