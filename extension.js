@@ -107,8 +107,54 @@ export default class NotificationThemeExtension extends Extension {
     //   return GLib.SOURCE_REMOVE;   // run ONLY once
     // });
 
-    this.watchPanelBox('center', CENTER_ORDER);
-    this.watchPanelBox('right', RIGHT_ORDER);
+    // this.watchPanelBox('center', CENTER_ORDER);
+    // this.watchPanelBox('right', RIGHT_ORDER);
+
+    // Start polling every 200ms
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+      // Check that all center roles exist
+      const allCenterFound = CENTER_ORDER.every(role => {
+        const obj = Main.panel.statusArea[role];
+        return obj && obj.container;
+      });
+
+      // Check that all right roles exist
+      const allRightFound = RIGHT_ORDER.every(role => {
+        const obj = Main.panel.statusArea[role];
+        return obj && obj.container;
+      });
+
+      if (allCenterFound && allRightFound) {
+        journal("All center and right roles found — panel ready!");
+
+        // Run your organization logic now
+        this.organizePanelItems('center', CENTER_ORDER);
+        this.organizePanelItems('right', RIGHT_ORDER);
+
+        return GLib.SOURCE_REMOVE; // stop polling
+      }
+
+      return GLib.SOURCE_CONTINUE; // keep polling
+    });
+
+    // // Start polling for the role
+    // let _panelReadyTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+    //   const obj = Main.panel.statusArea['ShowNetSpeedButton'];
+
+    //   if (obj && obj.container) {
+    //     journal('ShowNetSpeedButton found — panel ready!');
+
+    //     // Stop the timer
+    //     _panelReadyTimer = null;
+
+    //     // Run your code now
+
+    //     return GLib.SOURCE_REMOVE; // stop repeating
+    //   }
+
+    //   // Keep polling
+    //   return GLib.SOURCE_CONTINUE;
+    // });
 
     // Main.panel._centerBox.connect('child-added', (actor, child) => {
     //   // Find the role for this child, same as your for-loop logic
@@ -179,37 +225,37 @@ export default class NotificationThemeExtension extends Extension {
     });
   }
 
-  watchPanelBox(boxType, itemOrder, delay = 1000) {
-    const box = Main.panel[`_${boxType}Box`];
-    let timer = null;
-    let signalId = null;
+  // watchPanelBox(boxType, itemOrder, delay = 1000) {
+  //   const box = Main.panel[`_${boxType}Box`];
+  //   let timer = null;
+  //   let signalId = null;
 
-    signalId = box.connect('child-added', (actor, child) => {
-      journal(`Child added in ${boxType}: ${child}`);
+  //   signalId = box.connect('child-added', (actor, child) => {
+  //     journal(`Child added in ${boxType}: ${child}`);
 
-      // Reset timer if already running
-      if (timer) {
-        GLib.source_remove(timer);
-        timer = null;
-      }
+  //     // Reset timer if already running
+  //     if (timer) {
+  //       GLib.source_remove(timer);
+  //       timer = null;
+  //     }
 
-      timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
-        timer = null;
-        journal(`No new children added in ${boxType}Box for ${delay}ms — panel ready!`);
+  //     timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
+  //       timer = null;
+  //       journal(`No new children added in ${boxType}Box for ${delay}ms — panel ready!`);
 
-        // Disconnect first to avoid retriggering
-        if (signalId) {
-          box.disconnect(signalId);
-          signalId = null;
-        }
+  //       // Disconnect first to avoid retriggering
+  //       if (signalId) {
+  //         box.disconnect(signalId);
+  //         signalId = null;
+  //       }
 
-        // Organize children safely
-        this.organizePanelItems(boxType, itemOrder);
+  //       // Organize children safely
+  //       this.organizePanelItems(boxType, itemOrder);
 
-        return GLib.SOURCE_REMOVE;
-      });
-    });
-  }
+  //       return GLib.SOURCE_REMOVE;
+  //     });
+  //   });
+  // }
 
   organizePanelItems(boxType, itemOrder) {
     const panel = Main.panel;
