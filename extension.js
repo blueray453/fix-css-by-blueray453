@@ -4,7 +4,8 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
-const DateMenu = Main.panel.statusArea.dateMenu;
+const StatusArea = Main.panel.statusArea;
+const DateMenu = StatusArea.dateMenu;
 let handId = null;
 
 export default class NotificationThemeExtension extends Extension {
@@ -47,8 +48,8 @@ export default class NotificationThemeExtension extends Extension {
     // journal('=== LEFT BOX ===');
     // Main.panel._leftBox.get_children().forEach((child, index) => {
     //   let role = null;
-    //   for (const r in Main.panel.statusArea) {
-    //     if (Main.panel.statusArea[r].container === child) {
+    //   for (const r in StatusArea) {
+    //     if (StatusArea[r].container === child) {
     //       role = r;
     //       break;
     //     }
@@ -59,8 +60,8 @@ export default class NotificationThemeExtension extends Extension {
     // journal('=== CENTER BOX ===');
     // Main.panel._centerBox.get_children().forEach((child, index) => {
     //   let role = null;
-    //   for (const r in Main.panel.statusArea) {
-    //     if (Main.panel.statusArea[r].container === child) {
+    //   for (const r in StatusArea) {
+    //     if (StatusArea[r].container === child) {
     //       role = r;
     //       break;
     //     }
@@ -71,8 +72,8 @@ export default class NotificationThemeExtension extends Extension {
     // journal('=== RIGHT BOX ===');
     // Main.panel._rightBox.get_children().forEach((child, index) => {
     //   let role = null;
-    //   for (const r in Main.panel.statusArea) {
-    //     if (Main.panel.statusArea[r].container === child) {
+    //   for (const r in StatusArea) {
+    //     if (StatusArea[r].container === child) {
     //       role = r;
     //       break;
     //     }
@@ -112,22 +113,22 @@ export default class NotificationThemeExtension extends Extension {
 
     let attempts = 0;
 
+    let ALL_ORDER = [...CENTER_ORDER, ...RIGHT_ORDER];
     // Start polling every 200ms
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
       attempts++;
-      // Check that all center roles exist
-      const allCenterFound = CENTER_ORDER.every(role => {
-        const obj = Main.panel.statusArea[role];
-        return obj && obj.container;
+
+      // Filter out roles that are already found
+      ALL_ORDER = ALL_ORDER.filter(role => {
+        const obj = StatusArea[role];
+        journal(`Checking role: ${role}`);
+
+        // Keep only roles NOT found yet
+        return !obj || !obj.container;
       });
 
-      // Check that all right roles exist
-      const allRightFound = RIGHT_ORDER.every(role => {
-        const obj = Main.panel.statusArea[role];
-        return obj && obj.container;
-      });
-
-      if (allCenterFound && allRightFound) {
+      journal(`ALL_ORDER ${ALL_ORDER}`);
+      if (ALL_ORDER.length === 0) {
         journal(`Attempt ${attempts}`);
         journal("All center and right roles found — panel ready!");
 
@@ -149,7 +150,7 @@ export default class NotificationThemeExtension extends Extension {
 
     // // Start polling for the role
     // let _panelReadyTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
-    //   const obj = Main.panel.statusArea['ShowNetSpeedButton'];
+    //   const obj = StatusArea['ShowNetSpeedButton'];
 
     //   if (obj && obj.container) {
     //     journal('ShowNetSpeedButton found — panel ready!');
@@ -170,8 +171,8 @@ export default class NotificationThemeExtension extends Extension {
     //   // Find the role for this child, same as your for-loop logic
     //   let role = null;
 
-    //   for (const r in Main.panel.statusArea) {
-    //     if (Main.panel.statusArea[r].container === child) {
+    //   for (const r in StatusArea) {
+    //     if (StatusArea[r].container === child) {
     //       role = r;
     //       break;
     //     }
@@ -183,8 +184,8 @@ export default class NotificationThemeExtension extends Extension {
     // });
 
     // // Stamp the panel role onto each container
-    // for (const role in Main.panel.statusArea) {
-    //   const obj = Main.panel.statusArea[role];
+    // for (const role in StatusArea) {
+    //   const obj = StatusArea[role];
 
     //   // Only stamp if container exists
     //   if (obj && obj.container) {
