@@ -110,8 +110,11 @@ export default class NotificationThemeExtension extends Extension {
     // this.watchPanelBox('center', CENTER_ORDER);
     // this.watchPanelBox('right', RIGHT_ORDER);
 
+    let attempts = 0;
+
     // Start polling every 200ms
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+      attempts++;
       // Check that all center roles exist
       const allCenterFound = CENTER_ORDER.every(role => {
         const obj = Main.panel.statusArea[role];
@@ -125,6 +128,7 @@ export default class NotificationThemeExtension extends Extension {
       });
 
       if (allCenterFound && allRightFound) {
+        journal(`Attempt ${attempts}`);
         journal("All center and right roles found — panel ready!");
 
         // Run your organization logic now
@@ -132,6 +136,12 @@ export default class NotificationThemeExtension extends Extension {
         this.organizePanelItems('right', RIGHT_ORDER);
 
         return GLib.SOURCE_REMOVE; // stop polling
+      }
+
+      // Polling Limit
+      if (attempts >= 25) {
+        journal("Stopped polling after 25 attempts — roles not fully found.");
+        return GLib.SOURCE_REMOVE; // Stop regardless of success
       }
 
       return GLib.SOURCE_CONTINUE; // keep polling
