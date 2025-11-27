@@ -83,7 +83,6 @@ export default class NotificationThemeExtension extends Extension {
 
     // Hardcoded center box order
     const CENTER_ORDER = [
-      "ShowNetSpeedButton",
     ];
 
     const RIGHT_ORDER = [
