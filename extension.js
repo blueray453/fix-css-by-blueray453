@@ -84,11 +84,9 @@ export default class NotificationThemeExtension extends Extension {
     // Hardcoded center box order
     const CENTER_ORDER = [
       "ShowNetSpeedButton",
-      "workspace-indicator",
     ];
 
     const RIGHT_ORDER = [
-      "currentworkspacename@jaybeeunix.dev",
       "printers",
       "lockkeys@febueldo.test",
       "color-picker@tuberry", // Fixed: removed space
