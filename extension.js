@@ -99,6 +99,17 @@ export default class NotificationThemeExtension extends Extension {
       "athan@goodm4ven",
     ];
 
+    // const PANEL_ITEM_IMPLEMENTATIONS = {
+    //     'activities': ActivitiesButton,
+    //     'quickSettings': QuickSettings,
+    //     'dateMenu': DateMenuButton,
+    //     'a11y': ATIndicator,
+    //     'keyboard': InputSourceIndicator,
+    //     'dwellClick': DwellClickIndicator,
+    //     'screenRecording': ScreenRecordingIndicator,
+    //     'screenSharing': ScreenSharingIndicator,
+    // };
+
     // // Interfare with dash to panel
     // const RIGHT_ORDER = [
     //   "ShowNetSpeedButton",
@@ -126,16 +137,16 @@ export default class NotificationThemeExtension extends Extension {
       // Filter out roles that are already found
       ALL_ORDER = ALL_ORDER.filter(role => {
         const obj = StatusArea[role];
-        journal(`Checking role: ${role}`);
+        // journal(`Checking role: ${role}`);
 
         // Keep only roles NOT found yet
         return !obj || !obj.container;
       });
 
-      journal(`ALL_ORDER ${ALL_ORDER}`);
+      // journal(`ALL_ORDER ${ALL_ORDER}`);
       if (ALL_ORDER.length === 0) {
-        journal(`Attempt ${attempts}`);
-        journal("All center and right roles found — panel ready!");
+        // journal(`Attempt ${attempts}`);
+        // journal("All center and right roles found — panel ready!");
 
         // Run your organization logic now
         this.organizePanelItems('center', CENTER_ORDER);
@@ -146,7 +157,7 @@ export default class NotificationThemeExtension extends Extension {
 
       // Polling Limit
       if (attempts >= 25) {
-        journal("Stopped polling after 25 attempts — roles not fully found.");
+        // journal("Stopped polling after 25 attempts — roles not fully found.");
         return GLib.SOURCE_REMOVE; // Stop regardless of success
       }
 
@@ -163,11 +174,11 @@ export default class NotificationThemeExtension extends Extension {
     const box = panel[`_${boxType}Box`];
 
     if (!box) {
-      journal(`ERROR: ${boxType} box not found`);
+      // journal(`ERROR: ${boxType} box not found`);
       return;
     }
 
-    journal(`=== Moving items to ${boxType} box ===`);
+    // journal(`=== Moving items to ${boxType} box ===`);
 
     // Remove items from their current boxes and add to target box
     itemOrder.forEach(role => {
@@ -183,13 +194,13 @@ export default class NotificationThemeExtension extends Extension {
 
         // Add to target box
         box.add_child(container);
-        journal(`Moved to ${boxType}: ${role}`);
+        // journal(`Moved to ${boxType}: ${role}`);
       } else {
-        journal(`NOT FOUND: ${role}`);
+        // journal(`NOT FOUND: ${role}`);
       }
     });
 
-    journal(`=== ${boxType} box organization complete ===`);
+    // journal(`=== ${boxType} box organization complete ===`);
   }
 
   disable() {
