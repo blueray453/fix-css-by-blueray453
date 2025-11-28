@@ -167,6 +167,8 @@ export default class NotificationThemeExtension extends Extension {
     Main.panel.statusArea["activities"].hide();
 
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
+
+    this._moveDate(true);
   }
 
   safelyReorder(boxType, desiredOrder) {
@@ -187,14 +189,27 @@ export default class NotificationThemeExtension extends Extension {
       const actor = indicator.container;
 
       // Only reorder if the indicator is already inside this box
-      journal(`Actor Parent: ${actor.get_parent()}`);
-      journal(`Box: ${box}`);
+      // journal(`Actor Parent: ${actor.get_parent()}`);
+      // journal(`Box: ${box}`);
       if (actor.get_parent() === box) {
         box.set_child_at_index(actor, index);
-        journal(`Set Child`);
+        // journal(`Set Child`);
       }
     });
     // journal(`=== ${boxType} box organization complete ===`);
+  }
+
+  _moveDate(active) {
+    if (active) {
+      Main.sessionMode.panel.center = Main.sessionMode.panel.center.filter(item => item != 'dateMenu')
+      Main.sessionMode.panel.right.splice(0, 0, 'dateMenu');
+      journal(`Array: ${Main.sessionMode.panel.right}`);
+    } else {
+      Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(item => item != 'dateMenu')
+      Main.sessionMode.panel.center.push('dateMenu');
+    }
+
+    Main.panel._updatePanel();
   }
 
   disable() {
@@ -207,5 +222,7 @@ export default class NotificationThemeExtension extends Extension {
       Main.panel.disconnect(this.scrollEventId);
       this.scrollEventId = null;
     }
+
+    this._moveDate(false);
   }
 }
