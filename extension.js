@@ -100,17 +100,30 @@ export default class NotificationThemeExtension extends Extension {
     ];
 
     const RIGHT_ORDER = [
+      "ShowNetSpeedButton",
       "printers",
       "lockkeys@febueldo.test",
       "color-picker@tuberry", // Fixed: removed space
       "clipboardIndicator",
-      "dwellClick",
-      "screenRecording",
-      "screenSharing",
-      "a11y",
-      "keyboard",
       "athan@goodm4ven",
     ];
+
+    // // Interfare with dash to panel
+    // const RIGHT_ORDER = [
+    //   "ShowNetSpeedButton",
+    //   "printers",
+    //   "lockkeys@febueldo.test",
+    //   "color-picker@tuberry", // Fixed: removed space
+    //   "clipboardIndicator",
+    //   "athan@goodm4ven",
+    //   "dateMenu",
+    //   "screenRecording",
+    //   "screenSharing",
+    //   "dwellClick",
+    //   "a11y",
+    //   "keyboard",
+    //   "quickSettings"
+    // ];
 
     let attempts = 0;
 
@@ -148,6 +161,8 @@ export default class NotificationThemeExtension extends Extension {
 
       return GLib.SOURCE_CONTINUE; // keep polling
     });
+
+    Main.panel.statusArea["activities"].hide();
   }
 
   organizePanelItems(boxType, itemOrder) {
@@ -191,5 +206,7 @@ export default class NotificationThemeExtension extends Extension {
     // Move panel back to top
     const monitor = Main.layoutManager.primaryMonitor;
     Main.layoutManager.panelBox.set_position(monitor.x, monitor.y);
+
+    Main.panel.statusArea["activities"].show();
   }
 }
