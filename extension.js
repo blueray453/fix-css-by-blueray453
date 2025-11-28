@@ -61,8 +61,8 @@ export default class NotificationThemeExtension extends Extension {
     let attempts = 0;
 
     let ALL_ORDER = [...CENTER_ORDER, ...RIGHT_ORDER];
-    // Start polling every 200ms
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
+    // Start polling every 100ms
+    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
       attempts++;
 
       // Filter out roles that are already found
@@ -76,7 +76,7 @@ export default class NotificationThemeExtension extends Extension {
 
       // journal(`ALL_ORDER ${ALL_ORDER}`);
       if (ALL_ORDER.length === 0) {
-        // journal(`Attempt ${attempts}`);
+        journal(`Attempt ${attempts}`);
         // journal("All center and right roles found — panel ready!");
 
         // Run your organization logic now
@@ -87,7 +87,7 @@ export default class NotificationThemeExtension extends Extension {
       }
 
       // Polling Limit
-      if (attempts >= 25) {
+      if (attempts >= 40) {
         // journal("Stopped polling after 25 attempts — roles not fully found.");
         return GLib.SOURCE_REMOVE; // Stop regardless of success
       }
@@ -179,14 +179,6 @@ export default class NotificationThemeExtension extends Extension {
     }
   }
 
-  /**
-   * Returns the roles of all children in a given panel box
-   *
-   * @param {St.BoxLayout} box - The panel box (_leftBox, _centerBox, _rightBox)
-   * @param {string} boxName - Optional name for logging
-   * @param {boolean} log - Whether to journal the roles
-   * @returns {string[]} Array of roles, 'unknown' if not found
-   */
   getRolesInBox(box, boxName = '', log = true) {
     const roles = [];
 
