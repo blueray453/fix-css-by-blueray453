@@ -30,3 +30,7 @@
 /* .notification-banner {
   border: 1px solid red;
 } */
+
+#panel {
+  height: 160px;
+}

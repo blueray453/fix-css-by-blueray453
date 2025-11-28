@@ -5,7 +5,6 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
 const Panel = Main.panel;
-const PanelSessionMode = Main.sessionMode.panel;
 const StatusArea = Panel.statusArea;
 const DateMenu = StatusArea.dateMenu;
 
@@ -43,10 +42,6 @@ export default class NotificationThemeExtension extends Extension {
     DateMenu._calendar._weekStart = 6; // Saturday
     DateMenu._calendar._onSettingsChange();
 
-    // Increase panel height
-    this._originalHeight = Panel.height;
-    Panel.set_height(160); // Set to desired height (default is usually 30-40)
-
     // Move panel to bottom
     const monitor = Main.layoutManager.primaryMonitor;
     Main.layoutManager.panelBox.set_position(
@@ -54,17 +49,12 @@ export default class NotificationThemeExtension extends Extension {
       monitor.y + monitor.height - Panel.height
     );
 
-    // slice() → makes a new copy
-    // no slice() → points to the same array
-    // That’s the entire difference.
-    // Without slice() (just another pointer)
-
-    this.centerItems = PanelSessionMode.center.slice();
-    // Clear center and move items to right (before system menu)
-    PanelSessionMode.center = [];
-    PanelSessionMode.right.push(...this.centerItems);
-
-    Panel._updatePanel();
+    // Main.panel._centerBox.connect('child-added', (box, child) => {
+    //   // Move the child from center to right box
+    //   box.remove_child(child);
+    //   journal(`Child is: ${child}`)
+    //   Main.panel._rightBox.add_child(child);
+    // });
 
     // // Have to enable disable as this needs to be the last
     // // The following code needs to be run after the menu is populated
@@ -124,16 +114,6 @@ export default class NotificationThemeExtension extends Extension {
       "quickSettings"
     ];
 
-    // GLib.timeout_add(GLib.PRIORITY_DEFAULT, 000, () => {
-    //   // Organize both boxes
-    //   this.organizePanelItems('center', CENTER_ORDER);
-    //   this.organizePanelItems('right', RIGHT_ORDER);
-    //   return GLib.SOURCE_REMOVE;   // run ONLY once
-    // });
-
-    // this.watchPanelBox('center', CENTER_ORDER);
-    // this.watchPanelBox('right', RIGHT_ORDER);
-
     let attempts = 0;
 
     let ALL_ORDER = [...CENTER_ORDER, ...RIGHT_ORDER];
@@ -170,94 +150,7 @@ export default class NotificationThemeExtension extends Extension {
 
       return GLib.SOURCE_CONTINUE; // keep polling
     });
-
-    // // Start polling for the role
-    // let _panelReadyTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
-    //   const obj = StatusArea['ShowNetSpeedButton'];
-
-    //   if (obj && obj.container) {
-    //     journal('ShowNetSpeedButton found — panel ready!');
-
-    //     // Stop the timer
-    //     _panelReadyTimer = null;
-
-    //     // Run your code now
-
-    //     return GLib.SOURCE_REMOVE; // stop repeating
-    //   }
-
-    //   // Keep polling
-    //   return GLib.SOURCE_CONTINUE;
-    // });
-
-    // Panel._centerBox.connect('child-added', (actor, child) => {
-    //   // Find the role for this child, same as your for-loop logic
-    //   let role = null;
-
-    //   for (const r in StatusArea) {
-    //     if (StatusArea[r].container === child) {
-    //       role = r;
-    //       break;
-    //     }
-    //   }
-
-    //   journal('=== NEW CHILD ADDED TO CENTER BOX ===');
-    //   journal(`child: ${child}`);
-    //   journal(`role: ${role || 'unknown'}`);
-    // });
-
-    // // Stamp the panel role onto each container
-    // for (const role in StatusArea) {
-    //   const obj = StatusArea[role];
-
-    //   // Only stamp if container exists
-    //   if (obj && obj.container) {
-    //     obj.container._panelRole = role;
-    //   }
-    // }
-
-    // // Now you can use child-added easily
-    // this._centerAddedId = Panel._centerBox.connect(
-    //   'child-added',
-    //   (actor, child) => {
-    //     journal('=== CHILD ADDED ===');
-    //     journal('child: ' + child);
-    //     journal('role: ' + (child._panelRole || 'unknown'));
-    //   }
-    // );
   }
-
-  // watchPanelBox(boxType, itemOrder, delay = 1000) {
-  //   const box = Panel[`_${boxType}Box`];
-  //   let timer = null;
-  //   let signalId = null;
-
-  //   signalId = box.connect('child-added', (actor, child) => {
-  //     journal(`Child added in ${boxType}: ${child}`);
-
-  //     // Reset timer if already running
-  //     if (timer) {
-  //       GLib.source_remove(timer);
-  //       timer = null;
-  //     }
-
-  //     timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, delay, () => {
-  //       timer = null;
-  //       journal(`No new children added in ${boxType}Box for ${delay}ms — panel ready!`);
-
-  //       // Disconnect first to avoid retriggering
-  //       if (signalId) {
-  //         box.disconnect(signalId);
-  //         signalId = null;
-  //       }
-
-  //       // Organize children safely
-  //       this.organizePanelItems(boxType, itemOrder);
-
-  //       return GLib.SOURCE_REMOVE;
-  //     });
-  //   });
-  // }
 
   organizePanelItems(boxType, itemOrder) {
     const panel = Panel;
@@ -293,31 +186,12 @@ export default class NotificationThemeExtension extends Extension {
     journal(`=== ${boxType} box organization complete ===`);
   }
 
-  // coglColorToHex(coglColor) {
-  //   const { red, green, blue } = coglColor;
-
-  //   const toHex = n => n.toString(16).padStart(2, '0');
-  //   return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
-  // }
-
   disable() {
     DateMenu._calendar._weekStart = Shell.util_get_week_start();
     DateMenu._calendar._onSettingsChange();
 
-    // Restore original panel height
-    Panel.set_height(this._originalHeight);
-
     // Move panel back to top
     const monitor = Main.layoutManager.primaryMonitor;
     Main.layoutManager.panelBox.set_position(monitor.x, monitor.y);
-
-    PanelSessionMode.right = PanelSessionMode.right.filter(
-      item => !this.centerItems.includes(item)
-    );
-
-    // Restore center
-    PanelSessionMode.center = this.centerItems.slice();
-
-    Panel._updatePanel();
   }
 }
