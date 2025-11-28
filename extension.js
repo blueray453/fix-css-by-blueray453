@@ -44,45 +44,6 @@ export default class NotificationThemeExtension extends Extension {
     //   Main.panel._rightBox.add_child(child);
     // });
 
-    // // Have to enable disable as this needs to be the last
-    // // The following code needs to be run after the menu is populated
-    // // See what's currently in each box
-    // journal('=== LEFT BOX ===');
-    // Panel._leftBox.get_children().forEach((child, index) => {
-    //   let role = null;
-    //   for (const r in StatusArea) {
-    //     if (StatusArea[r].container === child) {
-    //       role = r;
-    //       break;
-    //     }
-    //   }
-    //   journal(`[${index}]: ${role || 'unknown'}`);
-    // });
-
-    // journal('=== CENTER BOX ===');
-    // Panel._centerBox.get_children().forEach((child, index) => {
-    //   let role = null;
-    //   for (const r in StatusArea) {
-    //     if (StatusArea[r].container === child) {
-    //       role = r;
-    //       break;
-    //     }
-    //   }
-    //   journal(`[${index}]: ${role || 'unknown'}`);
-    // });
-
-    // journal('=== RIGHT BOX ===');
-    // Panel._rightBox.get_children().forEach((child, index) => {
-    //   let role = null;
-    //   for (const r in StatusArea) {
-    //     if (StatusArea[r].container === child) {
-    //       role = r;
-    //       break;
-    //     }
-    //   }
-    //   journal(`[${index}]: ${role || 'unknown'}`);
-    // });
-
     // Hardcoded center box order
     const CENTER_ORDER = [
     ];
@@ -184,7 +145,7 @@ export default class NotificationThemeExtension extends Extension {
       Main.sessionMode.panel.center.push('dateMenu');
 
       Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(item => item != 'activities')
-      Main.sessionMode.panel.left.push('dateMenu');
+      Main.sessionMode.panel.left.push('activities');
     }
 
     Main.panel._updatePanel();
@@ -208,6 +169,38 @@ export default class NotificationThemeExtension extends Extension {
     }
   }
 
+  /**
+   * Returns the roles of all children in a given panel box
+   *
+   * @param {St.BoxLayout} box - The panel box (_leftBox, _centerBox, _rightBox)
+   * @param {string} boxName - Optional name for logging
+   * @param {boolean} log - Whether to journal the roles
+   * @returns {string[]} Array of roles, 'unknown' if not found
+   */
+  getRolesInBox(box, boxName = '', log = true) {
+    const roles = [];
+
+    box.get_children().forEach((child, index) => {
+      let role = null;
+
+      for (const r in StatusArea) {
+        if (StatusArea[r].container === child) {
+          role = r;
+          break;
+        }
+      }
+
+      const roleName = role || 'unknown';
+      roles.push(roleName);
+
+      if (log) {
+        journal(`${boxName}[${index}]: ${roleName}`);
+      }
+    });
+
+    return roles;
+  }
+
   disable() {
     // Move panel back to top
     this._movePanelPosition(false);
@@ -220,5 +213,9 @@ export default class NotificationThemeExtension extends Extension {
     }
 
     this._moveDate(false);
+
+    const leftRoles = this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
+    const centerRoles = this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
+    const rightRoles = this.getRolesInBox(Panel._rightBox, 'RIGHT BOX');
   }
 }
