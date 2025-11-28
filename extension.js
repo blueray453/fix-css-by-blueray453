@@ -43,11 +43,7 @@ export default class NotificationThemeExtension extends Extension {
     DateMenu._calendar._onSettingsChange();
 
     // Move panel to bottom
-    const monitor = Main.layoutManager.primaryMonitor;
-    Main.layoutManager.panelBox.set_position(
-      monitor.x,
-      monitor.y + monitor.height - Panel.height
-    );
+    Main.layoutManager.panelBox.set_position(0, 0 + global.get_screen_height() - Panel.height);
 
     // Main.panel._centerBox.connect('child-added', (box, child) => {
     //   // Move the child from center to right box
@@ -204,8 +200,7 @@ export default class NotificationThemeExtension extends Extension {
     DateMenu._calendar._onSettingsChange();
 
     // Move panel back to top
-    const monitor = Main.layoutManager.primaryMonitor;
-    Main.layoutManager.panelBox.set_position(monitor.x, monitor.y);
+    Main.layoutManager.panelBox.set_position(0, 0);
 
     Main.panel.statusArea["activities"].show();
   }
