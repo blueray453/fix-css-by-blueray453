@@ -8,7 +8,6 @@ const Panel = Main.panel;
 const PanelSessionMode = Main.sessionMode.panel;
 const StatusArea = Panel.statusArea;
 const DateMenu = StatusArea.dateMenu;
-let handId = null;
 
 export default class NotificationThemeExtension extends Extension {
   constructor(metadata) {
@@ -40,6 +39,33 @@ export default class NotificationThemeExtension extends Extension {
 
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
+
+    DateMenu._calendar._weekStart = 6; // Saturday
+    DateMenu._calendar._onSettingsChange();
+
+    // Increase panel height
+    this._originalHeight = Panel.height;
+    Panel.set_height(160); // Set to desired height (default is usually 30-40)
+
+    // Move panel to bottom
+    const monitor = Main.layoutManager.primaryMonitor;
+    Main.layoutManager.panelBox.set_position(
+      monitor.x,
+      monitor.y + monitor.height - Panel.height
+    );
+
+    // slice() → makes a new copy
+    // no slice() → points to the same array
+    // That’s the entire difference.
+    // Without slice() (just another pointer)
+
+    this.centerItems = PanelSessionMode.center.slice();
+    // Clear center and move items to right (before system menu)
+    PanelSessionMode.center = [];
+    PanelSessionMode.right.push(...this.centerItems);
+
+    Panel._updatePanel();
+
     // // Have to enable disable as this needs to be the last
     // // The following code needs to be run after the menu is populated
     // // See what's currently in each box
@@ -78,25 +104,6 @@ export default class NotificationThemeExtension extends Extension {
     //   }
     //   journal(`[${index}]: ${role || 'unknown'}`);
     // });
-
-    // Increase panel height
-    this._originalHeight = Panel.height;
-    Panel.set_height(160); // Set to desired height (default is usually 30-40)
-
-    // Move panel to bottom
-    const monitor = Main.layoutManager.primaryMonitor;
-    const panelHeight = Panel.height;
-    Main.layoutManager.panelBox.set_position(
-        monitor.x,
-        monitor.y + monitor.height - panelHeight
-    );
-
-    this.centerItems = PanelSessionMode.center.slice();
-    // Clear center and move items to right (before system menu)
-    PanelSessionMode.center = [];
-    PanelSessionMode.right.splice(-1, 0, ...this.centerItems);
-
-    Panel._updatePanel();
 
     // Hardcoded center box order
     const CENTER_ORDER = [
@@ -218,10 +225,6 @@ export default class NotificationThemeExtension extends Extension {
     //     journal('role: ' + (child._panelRole || 'unknown'));
     //   }
     // );
-
-    DateMenu._calendar._weekStart = 6; // Saturday
-
-    DateMenu._calendar._onSettingsChange();
   }
 
   // watchPanelBox(boxType, itemOrder, delay = 1000) {
@@ -298,6 +301,9 @@ export default class NotificationThemeExtension extends Extension {
   // }
 
   disable() {
+    DateMenu._calendar._weekStart = Shell.util_get_week_start();
+    DateMenu._calendar._onSettingsChange();
+
     // Restore original panel height
     Panel.set_height(this._originalHeight);
 
@@ -305,21 +311,13 @@ export default class NotificationThemeExtension extends Extension {
     const monitor = Main.layoutManager.primaryMonitor;
     Main.layoutManager.panelBox.set_position(monitor.x, monitor.y);
 
-    // Remove those items from right (keep system menu)
     PanelSessionMode.right = PanelSessionMode.right.filter(
       item => !this.centerItems.includes(item)
     );
 
-    // Restore original center items
-    PanelSessionMode.center.push(...this.centerItems);
+    // Restore center
+    PanelSessionMode.center = this.centerItems.slice();
 
     Panel._updatePanel();
-
-    DateMenu._calendar._weekStart = Shell.util_get_week_start();
-    DateMenu._calendar._onSettingsChange();
-    if (handId) {
-      this._settings.disconnect(handId);
-      handId = null;
-    }
   }
 }
