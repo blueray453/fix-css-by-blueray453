@@ -37,9 +37,6 @@ export default class NotificationThemeExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
 
-    // Move panel to bottom
-    Main.layoutManager.panelBox.set_position(0, 0 + global.get_screen_height() - Panel.height);
-
     // Main.panel._centerBox.connect('child-added', (box, child) => {
     //   // Move the child from center to right box
     //   box.remove_child(child);
@@ -99,34 +96,6 @@ export default class NotificationThemeExtension extends Extension {
       "athan@goodm4ven"
     ];
 
-    // const PANEL_ITEM_IMPLEMENTATIONS = {
-    //     'activities': ActivitiesButton,
-    //     'quickSettings': QuickSettings,
-    //     'dateMenu': DateMenuButton,
-    //     'a11y': ATIndicator,
-    //     'keyboard': InputSourceIndicator,
-    //     'dwellClick': DwellClickIndicator,
-    //     'screenRecording': ScreenRecordingIndicator,
-    //     'screenSharing': ScreenSharingIndicator,
-    // };
-
-    // // Interfare with dash to panel
-    // const RIGHT_ORDER = [
-    //   "ShowNetSpeedButton",
-    //   "printers",
-    //   "lockkeys@febueldo.test",
-    //   "color-picker@tuberry", // Fixed: removed space
-    //   "clipboardIndicator",
-    //   "athan@goodm4ven",
-    //   "dateMenu",
-    //   "screenRecording",
-    //   "screenSharing",
-    //   "dwellClick",
-    //   "a11y",
-    //   "keyboard",
-    //   "quickSettings"
-    // ];
-
     let attempts = 0;
 
     let ALL_ORDER = [...CENTER_ORDER, ...RIGHT_ORDER];
@@ -164,11 +133,14 @@ export default class NotificationThemeExtension extends Extension {
       return GLib.SOURCE_CONTINUE; // keep polling
     });
 
-    // Main.panel.statusArea["activities"].hide();
+    // Move panel to bottom
+    this._movePanelPosition(true);
 
-    this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
+    this._toggleActivities(true);
 
     this._moveDate(true);
+
+    this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
   }
 
   safelyReorder(boxType, desiredOrder) {
@@ -218,11 +190,29 @@ export default class NotificationThemeExtension extends Extension {
     Main.panel._updatePanel();
   }
 
+  _toggleActivities(active) {
+    const activities = Main.panel.statusArea["activities"];
+    if (!activities) return;
+    if (active) activities.hide();
+    else activities.show();
+  }
+
+  _movePanelPosition(active) {
+    if (active) {
+      Main.layoutManager.panelBox.set_position(
+        0,
+        global.get_screen_height() - Main.panel.height
+      );
+    } else {
+      Main.layoutManager.panelBox.set_position(0, 0);
+    }
+  }
+
   disable() {
     // Move panel back to top
-    Main.layoutManager.panelBox.set_position(0, 0);
+    this._movePanelPosition(false);
 
-    Main.panel.statusArea["activities"].show();
+    this._toggleActivities(false);
 
     if (this.scrollEventId != null) {
       Main.panel.disconnect(this.scrollEventId);
