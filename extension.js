@@ -94,9 +94,9 @@ export default class NotificationThemeExtension extends Extension {
       "ShowNetSpeedButton",
       "printers",
       "lockkeys@febueldo.test",
-      "color-picker@tuberry", // Fixed: removed space
+      "color-picker@tuberry",
       "clipboardIndicator",
-      "athan@goodm4ven",
+      "athan@goodm4ven"
     ];
 
     // const PANEL_ITEM_IMPLEMENTATIONS = {
@@ -149,8 +149,8 @@ export default class NotificationThemeExtension extends Extension {
         // journal("All center and right roles found — panel ready!");
 
         // Run your organization logic now
-        this.organizePanelItems('center', CENTER_ORDER);
-        this.organizePanelItems('right', RIGHT_ORDER);
+        this.safelyReorder('center', CENTER_ORDER);
+        this.safelyReorder('right', RIGHT_ORDER);
 
         return GLib.SOURCE_REMOVE; // stop polling
       }
@@ -169,37 +169,31 @@ export default class NotificationThemeExtension extends Extension {
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
   }
 
-  organizePanelItems(boxType, itemOrder) {
-    const panel = Panel;
+  safelyReorder(boxType, desiredOrder) {
+    const panel = Main.panel;
     const box = panel[`_${boxType}Box`];
 
     if (!box) {
-      // journal(`ERROR: ${boxType} box not found`);
+      log(`Box ${boxType} not found`);
       return;
     }
 
-    // journal(`=== Moving items to ${boxType} box ===`);
-
-    // Remove items from their current boxes and add to target box
-    itemOrder.forEach(role => {
+    // Walk the desired order and reposition existing indicators
+    desiredOrder.forEach((role, index) => {
       const indicator = panel.statusArea[role];
-      if (indicator && indicator.container) {
-        const container = indicator.container;
+      if (!indicator || !indicator.container)
+        return; // Skip missing ones
 
-        // Remove from current parent if it exists
-        const currentParent = container.get_parent();
-        if (currentParent) {
-          currentParent.remove_child(container);
-        }
+      const actor = indicator.container;
 
-        // Add to target box
-        box.add_child(container);
-        // journal(`Moved to ${boxType}: ${role}`);
-      } else {
-        // journal(`NOT FOUND: ${role}`);
+      // Only reorder if the indicator is already inside this box
+      journal(`Actor Parent: ${actor.get_parent()}`);
+      journal(`Box: ${box}`);
+      if (actor.get_parent() === box) {
+        box.set_child_at_index(actor, index);
+        journal(`Set Child`);
       }
     });
-
     // journal(`=== ${boxType} box organization complete ===`);
   }
 
