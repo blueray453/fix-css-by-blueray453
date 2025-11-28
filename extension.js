@@ -6,7 +6,6 @@ import { setLogging, setLogFn, journal } from './utils.js'
 
 const Panel = Main.panel;
 const StatusArea = Panel.statusArea;
-const DateMenu = StatusArea.dateMenu;
 
 export default class NotificationThemeExtension extends Extension {
   constructor(metadata) {
@@ -38,9 +37,6 @@ export default class NotificationThemeExtension extends Extension {
 
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
-
-    DateMenu._calendar._weekStart = 6; // Saturday
-    DateMenu._calendar._onSettingsChange();
 
     // Move panel to bottom
     Main.layoutManager.panelBox.set_position(0, 0 + global.get_screen_height() - Panel.height);
@@ -198,9 +194,6 @@ export default class NotificationThemeExtension extends Extension {
   }
 
   disable() {
-    DateMenu._calendar._weekStart = Shell.util_get_week_start();
-    DateMenu._calendar._onSettingsChange();
-
     // Move panel back to top
     Main.layoutManager.panelBox.set_position(0, 0);
 
