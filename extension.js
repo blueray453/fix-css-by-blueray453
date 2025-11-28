@@ -214,8 +214,8 @@ export default class NotificationThemeExtension extends Extension {
 
     this._moveDate(false);
 
-    const leftRoles = this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
-    const centerRoles = this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
-    const rightRoles = this.getRolesInBox(Panel._rightBox, 'RIGHT BOX');
+    // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
+    // this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
+    // this.getRolesInBox(Panel._rightBox, 'RIGHT BOX');
   }
 }
