@@ -159,6 +159,8 @@ export default class NotificationThemeExtension extends Extension {
     });
 
     Main.panel.statusArea["activities"].hide();
+
+    this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
   }
 
   organizePanelItems(boxType, itemOrder) {
@@ -203,5 +205,10 @@ export default class NotificationThemeExtension extends Extension {
     Main.layoutManager.panelBox.set_position(0, 0);
 
     Main.panel.statusArea["activities"].show();
+
+    if (this.scrollEventId != null) {
+      Main.panel.disconnect(this.scrollEventId);
+      this.scrollEventId = null;
+    }
   }
 }
