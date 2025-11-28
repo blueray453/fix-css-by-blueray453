@@ -4,7 +4,9 @@ import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
-const StatusArea = Main.panel.statusArea;
+const Panel = Main.panel;
+const PanelSessionMode = Main.sessionMode.panel;
+const StatusArea = Panel.statusArea;
 const DateMenu = StatusArea.dateMenu;
 let handId = null;
 
@@ -46,7 +48,7 @@ export default class NotificationThemeExtension extends Extension {
     // // The following code needs to be run after the menu is populated
     // // See what's currently in each box
     // journal('=== LEFT BOX ===');
-    // Main.panel._leftBox.get_children().forEach((child, index) => {
+    // Panel._leftBox.get_children().forEach((child, index) => {
     //   let role = null;
     //   for (const r in StatusArea) {
     //     if (StatusArea[r].container === child) {
@@ -58,7 +60,7 @@ export default class NotificationThemeExtension extends Extension {
     // });
 
     // journal('=== CENTER BOX ===');
-    // Main.panel._centerBox.get_children().forEach((child, index) => {
+    // Panel._centerBox.get_children().forEach((child, index) => {
     //   let role = null;
     //   for (const r in StatusArea) {
     //     if (StatusArea[r].container === child) {
@@ -70,7 +72,7 @@ export default class NotificationThemeExtension extends Extension {
     // });
 
     // journal('=== RIGHT BOX ===');
-    // Main.panel._rightBox.get_children().forEach((child, index) => {
+    // Panel._rightBox.get_children().forEach((child, index) => {
     //   let role = null;
     //   for (const r in StatusArea) {
     //     if (StatusArea[r].container === child) {
@@ -82,23 +84,23 @@ export default class NotificationThemeExtension extends Extension {
     // });
 
     // Increase panel height
-    this._originalHeight = Main.panel.height;
-    Main.panel.set_height(160); // Set to desired height (default is usually 30-40)
+    this._originalHeight = Panel.height;
+    Panel.set_height(160); // Set to desired height (default is usually 30-40)
 
     // Move panel to bottom
     const monitor = Main.layoutManager.primaryMonitor;
-    const panelHeight = Main.panel.height;
+    const panelHeight = Panel.height;
     Main.layoutManager.panelBox.set_position(
         monitor.x,
         monitor.y + monitor.height - panelHeight
     );
 
-    this.centerItems = Main.sessionMode.panel.center.slice();
+    this.centerItems = PanelSessionMode.center.slice();
     // Clear center and move items to right (before system menu)
-    Main.sessionMode.panel.center = [];
-    Main.sessionMode.panel.right.splice(-1, 0, ...this.centerItems);
+    PanelSessionMode.center = [];
+    PanelSessionMode.right.splice(-1, 0, ...this.centerItems);
 
-    Main.panel._updatePanel();
+    Panel._updatePanel();
 
     // Hardcoded center box order
     const CENTER_ORDER = [
@@ -185,7 +187,7 @@ export default class NotificationThemeExtension extends Extension {
     //   return GLib.SOURCE_CONTINUE;
     // });
 
-    // Main.panel._centerBox.connect('child-added', (actor, child) => {
+    // Panel._centerBox.connect('child-added', (actor, child) => {
     //   // Find the role for this child, same as your for-loop logic
     //   let role = null;
 
@@ -212,7 +214,7 @@ export default class NotificationThemeExtension extends Extension {
     // }
 
     // // Now you can use child-added easily
-    // this._centerAddedId = Main.panel._centerBox.connect(
+    // this._centerAddedId = Panel._centerBox.connect(
     //   'child-added',
     //   (actor, child) => {
     //     journal('=== CHILD ADDED ===');
@@ -255,7 +257,7 @@ export default class NotificationThemeExtension extends Extension {
   }
 
   // watchPanelBox(boxType, itemOrder, delay = 1000) {
-  //   const box = Main.panel[`_${boxType}Box`];
+  //   const box = Panel[`_${boxType}Box`];
   //   let timer = null;
   //   let signalId = null;
 
@@ -287,7 +289,7 @@ export default class NotificationThemeExtension extends Extension {
   // }
 
   organizePanelItems(boxType, itemOrder) {
-    const panel = Main.panel;
+    const panel = Panel;
     const box = panel[`_${boxType}Box`];
 
     if (!box) {
@@ -329,21 +331,21 @@ export default class NotificationThemeExtension extends Extension {
 
   disable() {
     // Restore original panel height
-    Main.panel.set_height(this._originalHeight);
+    Panel.set_height(this._originalHeight);
 
     // Move panel back to top
     const monitor = Main.layoutManager.primaryMonitor;
     Main.layoutManager.panelBox.set_position(monitor.x, monitor.y);
 
     // Remove those items from right (keep system menu)
-    Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(
+    PanelSessionMode.right = PanelSessionMode.right.filter(
       item => !this.centerItems.includes(item)
     );
 
     // Restore original center items
-    Main.sessionMode.panel.center.push(...this.centerItems);
+    PanelSessionMode.center.push(...this.centerItems);
 
-    Main.panel._updatePanel();
+    Panel._updatePanel();
 
     if (this._themeSignalId) {
       const messageTrayContainer = Main.messageTray.get_first_child();
