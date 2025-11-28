@@ -164,7 +164,7 @@ export default class NotificationThemeExtension extends Extension {
       return GLib.SOURCE_CONTINUE; // keep polling
     });
 
-    Main.panel.statusArea["activities"].hide();
+    // Main.panel.statusArea["activities"].hide();
 
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
 
@@ -202,11 +202,17 @@ export default class NotificationThemeExtension extends Extension {
   _moveDate(active) {
     if (active) {
       Main.sessionMode.panel.center = Main.sessionMode.panel.center.filter(item => item != 'dateMenu')
+      Main.sessionMode.panel.left = Main.sessionMode.panel.center.filter(item => item != 'activities')
       Main.sessionMode.panel.right.splice(0, 0, 'dateMenu');
-      journal(`Array: ${Main.sessionMode.panel.right}`);
+      Main.sessionMode.panel.right.push('activities');
+      // journal(`Left Array: ${Main.sessionMode.panel.left}`);
+      // journal(`Right Array: ${Main.sessionMode.panel.right}`);
     } else {
       Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(item => item != 'dateMenu')
       Main.sessionMode.panel.center.push('dateMenu');
+
+      Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(item => item != 'activities')
+      Main.sessionMode.panel.left.push('dateMenu');
     }
 
     Main.panel._updatePanel();
