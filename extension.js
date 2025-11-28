@@ -104,14 +104,12 @@ export default class NotificationThemeExtension extends Extension {
       "lockkeys@febueldo.test",
       "color-picker@tuberry", // Fixed: removed space
       "clipboardIndicator",
-      "athan@goodm4ven",
-      "dateMenu",
       "dwellClick",
       "screenRecording",
       "screenSharing",
       "a11y",
       "keyboard",
-      "quickSettings"
+      "athan@goodm4ven",
     ];
 
     let attempts = 0;
