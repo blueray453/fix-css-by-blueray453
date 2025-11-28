@@ -81,6 +81,25 @@ export default class NotificationThemeExtension extends Extension {
     //   journal(`[${index}]: ${role || 'unknown'}`);
     // });
 
+    // Increase panel height
+    this._originalHeight = Main.panel.height;
+    Main.panel.set_height(160); // Set to desired height (default is usually 30-40)
+
+    // Move panel to bottom
+    const monitor = Main.layoutManager.primaryMonitor;
+    const panelHeight = Main.panel.height;
+    Main.layoutManager.panelBox.set_position(
+        monitor.x,
+        monitor.y + monitor.height - panelHeight
+    );
+
+    this.centerItems = Main.sessionMode.panel.center.slice();
+    // Clear center and move items to right (before system menu)
+    Main.sessionMode.panel.center = [];
+    Main.sessionMode.panel.right.splice(-1, 0, ...this.centerItems);
+
+    Main.panel._updatePanel();
+
     // Hardcoded center box order
     const CENTER_ORDER = [
     ];
@@ -90,12 +109,14 @@ export default class NotificationThemeExtension extends Extension {
       "lockkeys@febueldo.test",
       "color-picker@tuberry", // Fixed: removed space
       "clipboardIndicator",
+      "athan@goodm4ven",
+      "dateMenu",
       "dwellClick",
       "screenRecording",
       "screenSharing",
       "a11y",
       "keyboard",
-      "athan@goodm4ven",
+      "quickSettings"
     ];
 
     // GLib.timeout_add(GLib.PRIORITY_DEFAULT, 000, () => {
@@ -307,6 +328,23 @@ export default class NotificationThemeExtension extends Extension {
   // }
 
   disable() {
+    // Restore original panel height
+    Main.panel.set_height(this._originalHeight);
+
+    // Move panel back to top
+    const monitor = Main.layoutManager.primaryMonitor;
+    Main.layoutManager.panelBox.set_position(monitor.x, monitor.y);
+
+    // Remove those items from right (keep system menu)
+    Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(
+      item => !this.centerItems.includes(item)
+    );
+
+    // Restore original center items
+    Main.sessionMode.panel.center.push(...this.centerItems);
+
+    Main.panel._updatePanel();
+
     if (this._themeSignalId) {
       const messageTrayContainer = Main.messageTray.get_first_child();
       messageTrayContainer?.disconnect(this._themeSignalId);
