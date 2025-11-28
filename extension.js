@@ -4,6 +4,7 @@ import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
 const Panel = Main.panel;
+const SessionModePanel = Main.sessionMode.panel;
 const StatusArea = Panel.statusArea;
 
 export default class NotificationThemeExtension extends Extension {
@@ -97,7 +98,9 @@ export default class NotificationThemeExtension extends Extension {
     // Move panel to bottom
     this._movePanelPosition(true);
 
-    this._toggleActivities(true);
+    // this._toggleActivities(true);
+
+    this._moveActivities(true);
 
     this._moveDate(true);
 
@@ -132,20 +135,27 @@ export default class NotificationThemeExtension extends Extension {
     // journal(`=== ${boxType} box organization complete ===`);
   }
 
+  _moveActivities(active) {
+    if (active) {
+      SessionModePanel.left = SessionModePanel.center.filter(item => item != 'activities')
+      SessionModePanel.right.push('activities');
+      // journal(`Left Array: ${SessionModePanel.left}`);
+      // journal(`Right Array: ${SessionModePanel.right}`);
+    } else {
+      SessionModePanel.right = SessionModePanel.right.filter(item => item != 'activities')
+      SessionModePanel.left.push('activities');
+    }
+
+    Main.panel._updatePanel();
+  }
+
   _moveDate(active) {
     if (active) {
-      Main.sessionMode.panel.center = Main.sessionMode.panel.center.filter(item => item != 'dateMenu')
-      Main.sessionMode.panel.left = Main.sessionMode.panel.center.filter(item => item != 'activities')
-      Main.sessionMode.panel.right.splice(0, 0, 'dateMenu');
-      Main.sessionMode.panel.right.push('activities');
-      // journal(`Left Array: ${Main.sessionMode.panel.left}`);
-      // journal(`Right Array: ${Main.sessionMode.panel.right}`);
+      SessionModePanel.center = SessionModePanel.center.filter(item => item != 'dateMenu')
+      SessionModePanel.right.splice(0, 0, 'dateMenu');
     } else {
-      Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(item => item != 'dateMenu')
-      Main.sessionMode.panel.center.push('dateMenu');
-
-      Main.sessionMode.panel.right = Main.sessionMode.panel.right.filter(item => item != 'activities')
-      Main.sessionMode.panel.left.push('activities');
+      SessionModePanel.right = SessionModePanel.right.filter(item => item != 'dateMenu')
+      SessionModePanel.center.push('dateMenu');
     }
 
     Main.panel._updatePanel();
@@ -205,12 +215,14 @@ export default class NotificationThemeExtension extends Extension {
     // Move panel back to top
     this._movePanelPosition(false);
 
-    this._toggleActivities(false);
+    // this._toggleActivities(false);
 
     if (this.scrollEventId != null) {
       Main.panel.disconnect(this.scrollEventId);
       this.scrollEventId = null;
     }
+
+    this._moveActivities(false);
 
     this._moveDate(false);
 
