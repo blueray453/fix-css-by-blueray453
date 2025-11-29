@@ -170,10 +170,7 @@ export default class NotificationThemeExtension extends Extension {
 
   _movePanelPosition(active) {
     if (active) {
-      Main.layoutManager.panelBox.set_position(
-        0,
-        global.get_screen_height() - Main.panel.height
-      );
+      Main.layoutManager.panelBox.set_position(0, global.get_screen_height() - Main.panel.height);
     } else {
       Main.layoutManager.panelBox.set_position(0, 0);
     }
