@@ -14,12 +14,28 @@
 .popup-menu-item {
     font-size: 32px; /* Individual item font size */
     min-height: 64px; /* Adjust height for larger text */
+    margin: 0px;
+    padding: 0px;
+    min-height: 40px !important;
 }
 
 .popup-menu-item StLabel {
     font-size: 32px; /* Target labels specifically */
+    margin: 0px;
+    padding: 0px;
+    min-height: 40px !important;
 }
 
 .popup-sub-menu .popup-menu-item {
     font-size: 32px; /* Submenu items */
 }
+
+/* .popup-separator-menu-item {
+  height: 40px !important;
+  min-height: 3px !important;
+}
+
+.popup-sub-menu .popup-separator-menu-item {
+  height: 40px !important;
+  min-height: 3px !important;
+} */
