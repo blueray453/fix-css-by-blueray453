@@ -6,3 +6,20 @@
 .popup-menu.panel-menu {
     margin-bottom: 0;
 }
+
+.popup-menu-content {
+    font-size: 32px; /* Increase overall menu font size */
+}
+
+.popup-menu-item {
+    font-size: 32px; /* Individual item font size */
+    min-height: 64px; /* Adjust height for larger text */
+}
+
+.popup-menu-item StLabel {
+    font-size: 32px; /* Target labels specifically */
+}
+
+.popup-sub-menu .popup-menu-item {
+    font-size: 32px; /* Submenu items */
+}
