@@ -104,7 +104,11 @@ export default class NotificationThemeExtension extends Extension {
 
     this._moveDate(true);
 
+    // Scroll on panel to change workspace
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
+
+    // No overview at start-up
+    Main.layoutManager.connectObject('startup-complete', () => Main.overview.hide(), this);
   }
 
   safelyReorder(boxType, desiredOrder) {
