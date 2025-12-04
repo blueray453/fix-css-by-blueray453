@@ -35,6 +35,9 @@ export default class NotificationThemeExtension extends Extension {
 
     setLogging(true);
 
+    Main.overview.dash.height = 0;
+    Main.overview.dash.hide();
+
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
 
@@ -95,8 +98,8 @@ export default class NotificationThemeExtension extends Extension {
       return GLib.SOURCE_CONTINUE; // keep polling
     });
 
-    // Move panel to bottom
-    this._movePanelPosition(true);
+    // // Move panel to bottom
+    // this._movePanelPosition(true);
 
     // this._toggleActivities(true);
 
