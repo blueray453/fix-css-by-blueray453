@@ -43,10 +43,10 @@ export default class NotificationThemeExtension extends Extension {
 
     this._originalAdjustIconSize = null;
 
-    this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+    // this._overviewSignalId = Main.overview.connectObject('showing', () => {
+    this._startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
 
       const dash = Main.overview._overview._controls?.dash;
-      if (!dash) return GLib.SOURCE_REMOVE;
 
       dash._dashContainer.width = 1100;   // Set your desired width
 
@@ -116,8 +116,6 @@ export default class NotificationThemeExtension extends Extension {
       // Apply immediately
       dash.iconSize = 112;
       dash._adjustIconSize();
-
-      return GLib.SOURCE_REMOVE;
     });
 
     // this._originalIconSize = Main.overview.dash.iconSize;
@@ -314,6 +312,17 @@ export default class NotificationThemeExtension extends Extension {
 
     // this._toggleActivities(false);
 
+    if (this._startupCompleteId) {
+      Main.layoutManager.disconnect(this._startupCompleteId);
+      this._startupCompleteId = null;
+    }
+
+    // // Disconnect overview signal (if using that approach)
+    // if (this._overviewSignalId) {
+    //   Main.overview.disconnectObject(this);
+    //   this._overviewSignalId = null;
+    // }
+
     if (this.scrollEventId != null) {
       Main.panel.disconnect(this.scrollEventId);
       this.scrollEventId = null;
@@ -333,9 +342,11 @@ export default class NotificationThemeExtension extends Extension {
     if (dash && this._originalAdjustIconSize) {
       // Restore original method
       dash._adjustIconSize = this._originalAdjustIconSize;
+      this._originalAdjustIconSize = null;
 
       // Restore default behavior
       dash._adjustIconSize();
+      // dash._queueRedisplay();
     }
 
     // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
