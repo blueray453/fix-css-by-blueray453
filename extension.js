@@ -158,7 +158,7 @@ export default class NotificationThemeExtension extends Extension {
 
     let ALL_ORDER = [...CENTER_ORDER, ...RIGHT_ORDER];
     // Start polling every 100ms
-    GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+    this._pollingTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
       attempts++;
 
       // Filter out roles that are already found
@@ -318,6 +318,11 @@ export default class NotificationThemeExtension extends Extension {
     // Move panel back to top
     this._movePanelPosition(false);
 
+    if (this._pollingTimeoutId) {
+      GLib.Source.remove(this._pollingTimeoutId);
+      this._pollingTimeoutId = null;
+    }
+
     // this._toggleActivities(false);
 
     if (this._startupCompleteId) {
@@ -326,7 +331,7 @@ export default class NotificationThemeExtension extends Extension {
     }
 
     if (this._overviewHideSignalId) {
-      Main.layoutManager.disconnect(this._overviewHideSignalId);
+      Main.layoutManager.disconnectObject(this._overviewHideSignalId);
       this._overviewHideSignalId = null;
     }
 
