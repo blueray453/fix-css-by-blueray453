@@ -104,6 +104,8 @@ export default class NotificationThemeExtension extends Extension {
 
     this._moveDate(true);
 
+    this._disableWindowDemandAttention(true);
+
     // Scroll on panel to change workspace
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
 
@@ -172,6 +174,18 @@ export default class NotificationThemeExtension extends Extension {
     else activities.show();
   }
 
+  _disableWindowDemandAttention(active) {
+    if (active) {
+      this._handlerid = global.display.connect('window-demands-attention', function (display, window) {
+        Main.activateWindow(window);
+      });
+    }
+    else {
+      global.display.disconnect(this._handlerid);
+      this._handlerid = null;
+    }
+  }
+
   _movePanelPosition(active) {
     if (active) {
       Main.layoutManager.panelBox.set_position(0, global.get_screen_height() - Main.panel.height);
@@ -218,6 +232,8 @@ export default class NotificationThemeExtension extends Extension {
     this._moveActivities(false);
 
     this._moveDate(false);
+
+    this._disableWindowDemandAttention(false);
 
     // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
     // this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
