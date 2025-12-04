@@ -48,6 +48,11 @@ export default class NotificationThemeExtension extends Extension {
 
       const dash = Main.overview._overview._controls?.dash;
 
+      if (!dash) {
+        journal('Dash not found during startup-complete', true);
+        return;
+      }
+
       dash._dashContainer.width = 1100;   // Set your desired width
 
 
@@ -116,6 +121,9 @@ export default class NotificationThemeExtension extends Extension {
       // Apply immediately
       dash.iconSize = 112;
       dash._adjustIconSize();
+
+      Main.layoutManager.disconnect(this._startupCompleteId);
+      this._startupCompleteId = null;
     });
 
     // this._originalIconSize = Main.overview.dash.iconSize;
@@ -198,7 +206,7 @@ export default class NotificationThemeExtension extends Extension {
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
 
     // No overview at start-up
-    Main.layoutManager.connectObject('startup-complete', () => Main.overview.hide(), this);
+    this._overviewHideSignalId = Main.layoutManager.connectObject('startup-complete', () => Main.overview.hide(), this);
   }
 
   safelyReorder(boxType, desiredOrder) {
@@ -317,6 +325,11 @@ export default class NotificationThemeExtension extends Extension {
       this._startupCompleteId = null;
     }
 
+    if (this._overviewHideSignalId) {
+      Main.layoutManager.disconnect(this._overviewHideSignalId);
+      this._overviewHideSignalId = null;
+    }
+
     // // Disconnect overview signal (if using that approach)
     // if (this._overviewSignalId) {
     //   Main.overview.disconnectObject(this);
@@ -333,10 +346,6 @@ export default class NotificationThemeExtension extends Extension {
     this._moveDate(false);
 
     this._disableWindowDemandAttention(false);
-
-    if (this._timeoutId) {
-      GLib.Source.remove(this._timeoutId);
-    }
 
     const dash = Main.overview._overview._controls?.dash;
     if (dash && this._originalAdjustIconSize) {
