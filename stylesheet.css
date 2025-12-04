@@ -40,73 +40,40 @@
   min-height: 3px !important;
 } */
 
-/* #dash {
-    min-height: 70px !important;
-    max-height: 700px !important;
-    height: 700px !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+/* Minimal CSS for 200px dash icons */
+
+#dash {
+  padding-left: 24px;
+  padding-right: 24px;
+  margin-bottom: 1000px !important;
 }
 
 #dash .dash-background {
-    min-height: 70px !important;
-    max-height: 700px !important;
-    height: 700px !important;
-    padding-top: 12px !important;
-    padding-bottom: 12px !important;
-    padding-left: 12px !important;
-    padding-right: 12px !important;
-    border-radius: 24px !important;
+  padding: 32px 28px;
+  border-radius: 36px;
 }
 
 #dash .dash-item-container {
-    min-height: 70px !important;
-    max-height: 700px !important;
-    height: 700px !important;
+  min-width: 200px;
+  min-height: 200px;
 }
 
 #dash .dash-item-container .show-apps,
 #dash .dash-item-container .overview-tile {
-    margin: 0 10px !important;
-    padding-bottom: 0 !important;
-}
-
-#dash .dash-item-container .show-apps .overview-icon,
-#dash .dash-item-container .overview-tile .overview-icon {
-    min-width: 56px !important;
-    min-height: 56px !important;
-    max-width: 560px !important;
-    max-height: 560px !important;
-    width: 560px !important;
-    height: 560px !important;
-    icon-size: 560px !important;
-    border-radius: 12px !important;
-    padding: 0 !important;
-}
-
-#dash .dash-item-container .placeholder,
-#dash .dash-item-container .empty-dash-drop-target {
-    min-width: 56px !important;
-    min-height: 56px !important;
-    width: 560px !important;
-    height: 560px !important;
+  margin: 0 16px;
+  padding-bottom: 32px;
 }
 
 #dash .dash-item-container .app-grid-running-dot {
-    offset-y: -12px !important;
-    width: 800px !important;
-    height: 8px !important;
-    border-radius: 4px !important;
+  offset-y: -32px;
+  width: 160px;
 }
 
 #dash .dash-separator {
-    margin-bottom: 0 !important;
-    margin-left: 10px !important;
-    margin-right: 10px !important;
-    height: 700px !important;
+  height: 200px;
+  margin: 0 16px 32px 16px;
 }
 
 .dash-label {
-    -y-offset: 20px !important;
+  -y-offset: 48px;
 }
- */

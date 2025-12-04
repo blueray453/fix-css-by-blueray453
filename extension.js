@@ -41,6 +41,62 @@ export default class NotificationThemeExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
 
+    this._originalAdjustIconSize = null;
+
+    this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+      const dash = Main.overview._overview._controls?.dash;
+      if (!dash) return GLib.SOURCE_REMOVE;
+
+      // Store original method
+      this._originalAdjustIconSize = dash._adjustIconSize;
+
+      // Patch the _adjustIconSize method to always use 200px
+      dash._adjustIconSize = function () {
+        // Skip the original size calculation and force 200px
+        if (this.iconSize !== 200) {
+          const oldIconSize = this.iconSize;
+          this.iconSize = 200;
+          this.emit('icon-size-changed');
+
+          // Update all icons
+          const iconChildren = this._box?.get_children().filter(actor => {
+            return actor.child &&
+              actor.child._delegate &&
+              actor.child._delegate.icon &&
+              !actor.animatingOut;
+          }) || [];
+
+          iconChildren.push(this._showAppsIcon);
+
+          for (let i = 0; i < iconChildren.length; i++) {
+            const icon = iconChildren[i]?.child?._delegate?.icon;
+            if (icon) {
+              icon.setIconSize(200);
+            }
+          }
+
+          // Update separator if exists
+          if (this._separator) {
+            this._separator.height = 200;
+          }
+        }
+      };
+
+      // Apply immediately
+      dash.iconSize = 200;
+      dash._adjustIconSize();
+
+      return GLib.SOURCE_REMOVE;
+    });
+
+    // this._originalIconSize = Main.overview.dash.iconSize;
+
+    // // Set icon size to 96
+    // Main.overview.dash.iconSize = 96;
+
+    // // Trigger dash redisplay to apply changes
+    // Main.overview.dash._queueRedisplay();
+
     // Main.panel._centerBox.connect('child-added', (box, child) => {
     //   // Move the child from center to right box
     //   box.remove_child(child);
@@ -237,6 +293,19 @@ export default class NotificationThemeExtension extends Extension {
     this._moveDate(false);
 
     this._disableWindowDemandAttention(false);
+
+    if (this._timeoutId) {
+      GLib.Source.remove(this._timeoutId);
+    }
+
+    const dash = Main.overview._overview._controls?.dash;
+    if (dash && this._originalAdjustIconSize) {
+      // Restore original method
+      dash._adjustIconSize = this._originalAdjustIconSize;
+
+      // Restore default behavior
+      dash._adjustIconSize();
+    }
 
     // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
     // this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
