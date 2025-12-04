@@ -35,8 +35,8 @@ export default class NotificationThemeExtension extends Extension {
 
     setLogging(true);
 
-    Main.overview.dash.height = 0;
-    Main.overview.dash.hide();
+    // Main.overview.dash.height = 0;
+    // Main.overview.dash.hide();
 
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);

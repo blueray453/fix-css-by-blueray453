@@ -39,3 +39,74 @@
   height: 40px !important;
   min-height: 3px !important;
 } */
+
+/* #dash {
+    min-height: 70px !important;
+    max-height: 700px !important;
+    height: 700px !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+#dash .dash-background {
+    min-height: 70px !important;
+    max-height: 700px !important;
+    height: 700px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    border-radius: 24px !important;
+}
+
+#dash .dash-item-container {
+    min-height: 70px !important;
+    max-height: 700px !important;
+    height: 700px !important;
+}
+
+#dash .dash-item-container .show-apps,
+#dash .dash-item-container .overview-tile {
+    margin: 0 10px !important;
+    padding-bottom: 0 !important;
+}
+
+#dash .dash-item-container .show-apps .overview-icon,
+#dash .dash-item-container .overview-tile .overview-icon {
+    min-width: 56px !important;
+    min-height: 56px !important;
+    max-width: 560px !important;
+    max-height: 560px !important;
+    width: 560px !important;
+    height: 560px !important;
+    icon-size: 560px !important;
+    border-radius: 12px !important;
+    padding: 0 !important;
+}
+
+#dash .dash-item-container .placeholder,
+#dash .dash-item-container .empty-dash-drop-target {
+    min-width: 56px !important;
+    min-height: 56px !important;
+    width: 560px !important;
+    height: 560px !important;
+}
+
+#dash .dash-item-container .app-grid-running-dot {
+    offset-y: -12px !important;
+    width: 800px !important;
+    height: 8px !important;
+    border-radius: 4px !important;
+}
+
+#dash .dash-separator {
+    margin-bottom: 0 !important;
+    margin-left: 10px !important;
+    margin-right: 10px !important;
+    height: 700px !important;
+}
+
+.dash-label {
+    -y-offset: 20px !important;
+}
+ */
