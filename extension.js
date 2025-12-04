@@ -44,18 +44,49 @@ export default class NotificationThemeExtension extends Extension {
     this._originalAdjustIconSize = null;
 
     this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+
       const dash = Main.overview._overview._controls?.dash;
       if (!dash) return GLib.SOURCE_REMOVE;
+
+      dash._dashContainer.width = 1100;   // Set your desired width
+
+
+      // dash.width = 3500;
+
+      // dash.translation_y = -200;
+      dash.translation_y = -100;
+
+      // dash.setMaxSize(-1, 3800);  // width, height (-1 means no limit)
+
+      // // Force the dash container to have minimum height
+      // dash._dashContainer.set_height(3800);
+      // dash._dashContainer.min_height = 3800;
+
+      // // Also try setting the box height
+      // dash._box.set_height(3800);
+      // dash._box.min_height = 3800;
+
+      dash.height = 350;
+
+      dash._dashContainer.height = 150;   // Set your desired height
+
+      if (dash._background) {
+        dash._background.set_height(150);
+        dash._background.min_height = 150;
+      }
+
+      // dash._dashContainer.width = 1500;
+      // dash._dashContainer.height = 1200;
 
       // Store original method
       this._originalAdjustIconSize = dash._adjustIconSize;
 
-      // Patch the _adjustIconSize method to always use 200px
+      // Patch the _adjustIconSize method to always use 112px
       dash._adjustIconSize = function () {
-        // Skip the original size calculation and force 200px
-        if (this.iconSize !== 200) {
+        // Skip the original size calculation and force 112px
+        if (this.iconSize !== 112) {
           const oldIconSize = this.iconSize;
-          this.iconSize = 200;
+          this.iconSize = 112;
           this.emit('icon-size-changed');
 
           // Update all icons
@@ -71,19 +102,19 @@ export default class NotificationThemeExtension extends Extension {
           for (let i = 0; i < iconChildren.length; i++) {
             const icon = iconChildren[i]?.child?._delegate?.icon;
             if (icon) {
-              icon.setIconSize(200);
+              icon.setIconSize(112);
             }
           }
 
           // Update separator if exists
           if (this._separator) {
-            this._separator.height = 200;
+            this._separator.height = 112;
           }
         }
       };
 
       // Apply immediately
-      dash.iconSize = 200;
+      dash.iconSize = 112;
       dash._adjustIconSize();
 
       return GLib.SOURCE_REMOVE;
@@ -155,7 +186,7 @@ export default class NotificationThemeExtension extends Extension {
     });
 
     // // Move panel to bottom
-    // this._movePanelPosition(true);
+    this._movePanelPosition(true);
 
     // this._toggleActivities(true);
 

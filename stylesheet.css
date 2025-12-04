@@ -42,10 +42,16 @@
 
 /* Minimal CSS for 200px dash icons */
 
-#dash {
+/* #dash {
   padding-left: 24px;
   padding-right: 24px;
-  margin-bottom: 1000px !important;
+  margin-bottom: 2000px !important;
+}
+
+.overview-controls,
+#overviewControls,
+.overview-dash-container {
+    transform: translateY(-2000px) !important;
 }
 
 #dash .dash-background {
@@ -76,4 +82,4 @@
 
 .dash-label {
   -y-offset: 48px;
-}
+} */
