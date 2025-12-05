@@ -41,117 +41,117 @@ export default class NotificationThemeExtension extends Extension {
     // journalctl -f -o cat SYSLOG_IDENTIFIER=fix-css-by-blueray453
     journal(`Enabled`);
 
-    this._originalAdjustIconSize = null;
+    // this._originalAdjustIconSize = null;
 
-    // this._overviewSignalId = Main.overview.connectObject('showing', () => {
-    this._startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
+    // // this._overviewSignalId = Main.overview.connectObject('showing', () => {
+    // this._startupCompleteId = Main.layoutManager.connect('startup-complete', () => {
 
-      const dash = Main.overview._overview._controls?.dash;
+    //   const dash = Main.overview._overview._controls?.dash;
 
-      if (!dash) {
-        journal('Dash not found during startup-complete', true);
-        return;
-      }
+    //   if (!dash) {
+    //     journal('Dash not found during startup-complete', true);
+    //     return;
+    //   }
 
-      dash._dashContainer.width = 1100;   // Set your desired width
+    //   dash._dashContainer.width = 1100;   // Set your desired width
 
 
-      // dash.width = 3500;
+    //   // dash.width = 3500;
 
-      // dash.translation_y = -200;
-      dash.translation_y = -100;
+    //   // dash.translation_y = -200;
+    //   dash.translation_y = -100;
 
-      // dash.setMaxSize(-1, 3800);  // width, height (-1 means no limit)
+    //   // dash.setMaxSize(-1, 3800);  // width, height (-1 means no limit)
 
-      // // Force the dash container to have minimum height
-      // dash._dashContainer.set_height(3800);
-      // dash._dashContainer.min_height = 3800;
+    //   // // Force the dash container to have minimum height
+    //   // dash._dashContainer.set_height(3800);
+    //   // dash._dashContainer.min_height = 3800;
 
-      // // Also try setting the box height
-      // dash._box.set_height(3800);
-      // dash._box.min_height = 3800;
+    //   // // Also try setting the box height
+    //   // dash._box.set_height(3800);
+    //   // dash._box.min_height = 3800;
 
-      dash.height = 350;
+    //   dash.height = 350;
 
-      dash._dashContainer.height = 150;   // Set your desired height
+    //   dash._dashContainer.height = 150;   // Set your desired height
 
-      if (dash._background) {
-        dash._background.set_height(150);
-        dash._background.min_height = 150;
-      }
+    //   if (dash._background) {
+    //     dash._background.set_height(150);
+    //     dash._background.min_height = 150;
+    //   }
 
-      // dash._dashContainer.width = 1500;
-      // dash._dashContainer.height = 1200;
+    //   // dash._dashContainer.width = 1500;
+    //   // dash._dashContainer.height = 1200;
 
-      // // Store original method
-      // this._originalAdjustIconSize = dash._adjustIconSize;
+    //   // // Store original method
+    //   // this._originalAdjustIconSize = dash._adjustIconSize;
 
-      // // Patch the _adjustIconSize method to always use 112px
-      // dash._adjustIconSize = function () {
-      //   // Skip the original size calculation and force 112px
-      //   if (this.iconSize !== 112) {
-      //     const oldIconSize = this.iconSize;
-      //     this.iconSize = 112;
-      //     this.emit('icon-size-changed');
+    //   // // Patch the _adjustIconSize method to always use 112px
+    //   // dash._adjustIconSize = function () {
+    //   //   // Skip the original size calculation and force 112px
+    //   //   if (this.iconSize !== 112) {
+    //   //     const oldIconSize = this.iconSize;
+    //   //     this.iconSize = 112;
+    //   //     this.emit('icon-size-changed');
 
-      //     // Update all icons
-      //     const iconChildren = this._box?.get_children().filter(actor => {
-      //       return actor.child &&
-      //         actor.child._delegate &&
-      //         actor.child._delegate.icon &&
-      //         !actor.animatingOut;
-      //     }) || [];
+    //   //     // Update all icons
+    //   //     const iconChildren = this._box?.get_children().filter(actor => {
+    //   //       return actor.child &&
+    //   //         actor.child._delegate &&
+    //   //         actor.child._delegate.icon &&
+    //   //         !actor.animatingOut;
+    //   //     }) || [];
 
-      //     iconChildren.push(this._showAppsIcon);
+    //   //     iconChildren.push(this._showAppsIcon);
 
-      //     for (let i = 0; i < iconChildren.length; i++) {
-      //       const icon = iconChildren[i]?.child?._delegate?.icon;
-      //       if (icon) {
-      //         icon.setIconSize(112);
-      //       }
-      //     }
+    //   //     for (let i = 0; i < iconChildren.length; i++) {
+    //   //       const icon = iconChildren[i]?.child?._delegate?.icon;
+    //   //       if (icon) {
+    //   //         icon.setIconSize(112);
+    //   //       }
+    //   //     }
 
-      //     // Update separator if exists
-      //     if (this._separator) {
-      //       this._separator.height = 112;
-      //     }
-      //   }
-      // };
+    //   //     // Update separator if exists
+    //   //     if (this._separator) {
+    //   //       this._separator.height = 112;
+    //   //     }
+    //   //   }
+    //   // };
 
-      // Store original icon size
-      this._originalIconSize = dash.iconSize;
+    //   // Store original icon size
+    //   this._originalIconSize = dash.iconSize;
 
-      // Connect to icon-size-changed to force our size
-      this._iconSizeSignal = dash.connect('icon-size-changed', () => {
-        if (dash.iconSize !== 112) {
-          dash.iconSize = 112;
+    //   // Connect to icon-size-changed to force our size
+    //   this._iconSizeSignal = dash.connect('icon-size-changed', () => {
+    //     if (dash.iconSize !== 112) {
+    //       dash.iconSize = 112;
 
-          // Manually update all icon sizes
-          const iconChildren = dash._box?.get_children().filter(actor => {
-            return actor.child?._delegate?.icon;
-          }) || [];
+    //       // Manually update all icon sizes
+    //       const iconChildren = dash._box?.get_children().filter(actor => {
+    //         return actor.child?._delegate?.icon;
+    //       }) || [];
 
-          iconChildren.forEach(actor => {
-            const icon = actor.child?._delegate?.icon;
-            if (icon) {
-              icon.setIconSize(112);
-            }
-          });
+    //       iconChildren.forEach(actor => {
+    //         const icon = actor.child?._delegate?.icon;
+    //         if (icon) {
+    //           icon.setIconSize(112);
+    //         }
+    //       });
 
-          // Update show apps icon
-          if (dash._showAppsIcon?.icon) {
-            dash._showAppsIcon.icon.setIconSize(112);
-          }
-        }
-      });
+    //       // Update show apps icon
+    //       if (dash._showAppsIcon?.icon) {
+    //         dash._showAppsIcon.icon.setIconSize(112);
+    //       }
+    //     }
+    //   });
 
-      // Set initial size
-      dash.iconSize = 112;
-      dash.emit('icon-size-changed');
+    //   // Set initial size
+    //   dash.iconSize = 112;
+    //   dash.emit('icon-size-changed');
 
-      Main.layoutManager.disconnect(this._startupCompleteId);
-      this._startupCompleteId = null;
-    });
+    //   Main.layoutManager.disconnect(this._startupCompleteId);
+    //   this._startupCompleteId = null;
+    // });
 
     // this._originalIconSize = Main.overview.dash.iconSize;
 
@@ -350,12 +350,12 @@ export default class NotificationThemeExtension extends Extension {
       this._pollingTimeoutId = null;
     }
 
-    // this._toggleActivities(false);
+    // // this._toggleActivities(false);
 
-    if (this._startupCompleteId) {
-      Main.layoutManager.disconnect(this._startupCompleteId);
-      this._startupCompleteId = null;
-    }
+    // if (this._startupCompleteId) {
+    //   Main.layoutManager.disconnect(this._startupCompleteId);
+    //   this._startupCompleteId = null;
+    // }
 
     if (this._overviewHideSignalId) {
       Main.layoutManager.disconnectObject(this._overviewHideSignalId);
@@ -379,16 +379,16 @@ export default class NotificationThemeExtension extends Extension {
 
     this._disableWindowDemandAttention(false);
 
-    const dash = Main.overview._overview._controls?.dash;
-    if (dash && this._originalAdjustIconSize) {
-      // Restore original method
-      dash._adjustIconSize = this._originalAdjustIconSize;
-      this._originalAdjustIconSize = null;
+    // const dash = Main.overview._overview._controls?.dash;
+    // if (dash && this._originalAdjustIconSize) {
+    //   // Restore original method
+    //   dash._adjustIconSize = this._originalAdjustIconSize;
+    //   this._originalAdjustIconSize = null;
 
-      // Restore default behavior
-      dash._adjustIconSize();
-      // dash._queueRedisplay();
-    }
+    //   // Restore default behavior
+    //   dash._adjustIconSize();
+    //   // dash._queueRedisplay();
+    // }
 
     // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
     // this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
