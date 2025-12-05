@@ -83,44 +83,71 @@ export default class NotificationThemeExtension extends Extension {
       // dash._dashContainer.width = 1500;
       // dash._dashContainer.height = 1200;
 
-      // Store original method
-      this._originalAdjustIconSize = dash._adjustIconSize;
+      // // Store original method
+      // this._originalAdjustIconSize = dash._adjustIconSize;
 
-      // Patch the _adjustIconSize method to always use 112px
-      dash._adjustIconSize = function () {
-        // Skip the original size calculation and force 112px
-        if (this.iconSize !== 112) {
-          const oldIconSize = this.iconSize;
-          this.iconSize = 112;
-          this.emit('icon-size-changed');
+      // // Patch the _adjustIconSize method to always use 112px
+      // dash._adjustIconSize = function () {
+      //   // Skip the original size calculation and force 112px
+      //   if (this.iconSize !== 112) {
+      //     const oldIconSize = this.iconSize;
+      //     this.iconSize = 112;
+      //     this.emit('icon-size-changed');
 
-          // Update all icons
-          const iconChildren = this._box?.get_children().filter(actor => {
-            return actor.child &&
-              actor.child._delegate &&
-              actor.child._delegate.icon &&
-              !actor.animatingOut;
+      //     // Update all icons
+      //     const iconChildren = this._box?.get_children().filter(actor => {
+      //       return actor.child &&
+      //         actor.child._delegate &&
+      //         actor.child._delegate.icon &&
+      //         !actor.animatingOut;
+      //     }) || [];
+
+      //     iconChildren.push(this._showAppsIcon);
+
+      //     for (let i = 0; i < iconChildren.length; i++) {
+      //       const icon = iconChildren[i]?.child?._delegate?.icon;
+      //       if (icon) {
+      //         icon.setIconSize(112);
+      //       }
+      //     }
+
+      //     // Update separator if exists
+      //     if (this._separator) {
+      //       this._separator.height = 112;
+      //     }
+      //   }
+      // };
+
+      // Store original icon size
+      this._originalIconSize = dash.iconSize;
+
+      // Connect to icon-size-changed to force our size
+      this._iconSizeSignal = dash.connect('icon-size-changed', () => {
+        if (dash.iconSize !== 112) {
+          dash.iconSize = 112;
+
+          // Manually update all icon sizes
+          const iconChildren = dash._box?.get_children().filter(actor => {
+            return actor.child?._delegate?.icon;
           }) || [];
 
-          iconChildren.push(this._showAppsIcon);
-
-          for (let i = 0; i < iconChildren.length; i++) {
-            const icon = iconChildren[i]?.child?._delegate?.icon;
+          iconChildren.forEach(actor => {
+            const icon = actor.child?._delegate?.icon;
             if (icon) {
               icon.setIconSize(112);
             }
-          }
+          });
 
-          // Update separator if exists
-          if (this._separator) {
-            this._separator.height = 112;
+          // Update show apps icon
+          if (dash._showAppsIcon?.icon) {
+            dash._showAppsIcon.icon.setIconSize(112);
           }
         }
-      };
+      });
 
-      // Apply immediately
+      // Set initial size
       dash.iconSize = 112;
-      dash._adjustIconSize();
+      dash.emit('icon-size-changed');
 
       Main.layoutManager.disconnect(this._startupCompleteId);
       this._startupCompleteId = null;
