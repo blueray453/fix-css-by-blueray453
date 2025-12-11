@@ -2,6 +2,7 @@ import GLib from 'gi://GLib';
 import Clutter from 'gi://Clutter';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as WindowPreview from 'resource:///org/gnome/shell/ui/windowPreview.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
 const Panel = Main.panel;
@@ -158,6 +159,26 @@ export default class NotificationThemeExtension extends Extension {
         // }
       });
     });
+
+    // // Save the original _init method
+    // this._originalInit = WindowPreview.WindowPreview.prototype._init;
+    const originalInit = WindowPreview.WindowPreview.prototype._init;
+    this._originalWindowPreviewInit = originalInit;
+
+    // Override the _init method
+    WindowPreview.WindowPreview.prototype._init = function (metaWindow, workspace, overviewAdjustment) {
+      // Call the original _init
+      originalInit.call(this, metaWindow, workspace, overviewAdjustment);
+
+      // Center the window title
+      const titleConstraints = this._title.get_constraints();
+      for (const constraint of titleConstraints) {
+        if (constraint instanceof Clutter.AlignConstraint &&
+          constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
+          constraint.set_factor(0.5); // 0=top, 0.5=center, 1=bottom
+        }
+      }
+    };
 
     // this._overviewShowingId = Main.overview.connect('showing', () => {
     //   journal(`Showing main overview`);
@@ -337,6 +358,11 @@ export default class NotificationThemeExtension extends Extension {
     if (this._overviewShowingId) {
       Main.overview.disconnect(this._overviewShowingId);
       this._overviewShowingId = 0;
+    }
+
+    if (this._originalWindowPreviewInit) {
+      WindowPreview.WindowPreview.prototype._init = this._originalWindowPreviewInit;
+      this._originalWindowPreviewInit = null;
     }
   }
 }
