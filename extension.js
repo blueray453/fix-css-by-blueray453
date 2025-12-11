@@ -1,4 +1,5 @@
 import GLib from 'gi://GLib';
+import Clutter from 'gi://Clutter';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import { setLogging, setLogFn, journal } from './utils.js'
@@ -119,6 +120,17 @@ export default class NotificationThemeExtension extends Extension {
       workspacesDisplay._workspacesViews.forEach(view => {
         // journal(`view: ${view}`);
         view.set_scale(0.96, 0.96);
+        // view._workspaces.forEach(workspace => {
+        //   workspace._windows.forEach(windowPreview => {
+        //     let constraints = windowPreview._title.get_constraints();
+        //     constraints.forEach(constraint => {
+        //       if (constraint instanceof Clutter.AlignConstraint &&
+        //         constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
+        //         constraint.factor = 0.5; // Center vertically (0=top, 0.5=center, 1=bottom)
+        //       }
+        //     });
+        //   });
+        // });
         // if (view._workspaces) {
         //   view._workspaces.forEach(workspace => {
         //     if (workspace._windows) {
