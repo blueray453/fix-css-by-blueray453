@@ -82,4 +82,14 @@
 
 .dash-label {
   -y-offset: 48px;
+}
+
+.workspaces-view{
+  transform: scale(0.98, 0.98);
+  transform-origin: center center;
+}
+
+.window-picker {
+    transform: scale(0.98, 0.98);
+    transform-origin: center center;
 } */

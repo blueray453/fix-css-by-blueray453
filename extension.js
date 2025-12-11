@@ -117,6 +117,7 @@ export default class NotificationThemeExtension extends Extension {
 
     this._overviewShowingId = Main.overview.connect('showing', () => {
       workspacesDisplay._workspacesViews.forEach(view => {
+        // journal(`view: ${view}`);
         view.set_scale(0.98, 0.98);
         // if (view._workspaces) {
         //   view._workspaces.forEach(workspace => {
