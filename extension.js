@@ -167,9 +167,9 @@ export default class NotificationThemeExtension extends Extension {
     this._originalWindowPreviewInit = originalInit;
 
     // Override the _init method
-    WindowPreview.WindowPreview.prototype._init = function (metaWindow, workspace, overviewAdjustment) {
+    WindowPreview.WindowPreview.prototype._init = function (...args) {
       // Call the original _init
-      originalInit.call(this, metaWindow, workspace, overviewAdjustment);
+      originalInit.call(this, ...args);
 
       // Center the window title
       const titleConstraints = this._title.get_constraints();
