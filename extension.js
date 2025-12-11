@@ -113,6 +113,54 @@ export default class NotificationThemeExtension extends Extension {
     // workspacesDisplay.visible = false;
     // workspacesDisplay.reactive = false;
     // workspacesDisplay.setPrimaryWorkspaceVisible(false);
+    const workspacesDisplay = Main.overview._overview.controls._workspacesDisplay;
+
+    this._overviewShowingId = Main.overview.connect('showing', () => {
+      workspacesDisplay._workspacesViews.forEach(view => {
+        if (view._workspaces) {
+          view._workspaces.forEach(workspace => {
+            if (workspace._windows) {
+              const hasSingleWindow = workspace._windows.length === 1;
+
+              workspace._windows.forEach(windowPreview => {
+                if (hasSingleWindow) {
+                  // Single window in any workspace
+                  windowPreview.set_scale(1, 0.96);
+                } else {
+                  // Multiple windows
+                  windowPreview.set_scale(1, 1); // Default scale
+                }
+              });
+            }
+          });
+        } else if (view._workspace && view._workspace._windows) {
+          // Handle SecondaryMonitorDisplay
+          const workspace = view._workspace;
+          const hasSingleWindow = workspace._windows.length === 1;
+
+          workspace._windows.forEach(windowPreview => {
+            windowPreview.set_scale(hasSingleWindow ? 1 : 1, hasSingleWindow ? 0.96 : 1);
+          });
+        }
+      });
+    });
+
+    // this._overviewShowingId = Main.overview.connect('showing', () => {
+    //   journal(`Showing main overview`);
+    //   journal(`workspacesDisplay ${workspacesDisplay}`);
+    //   // Iterate through all workspaces
+    //   workspacesDisplay._workspaces.forEach(workspace => {
+    //     journal(`Workspcae in overview`);
+    //     workspace._windows.forEach(windowPreview => {
+    //       journal(`windowPreview ${windowPreview}`);
+    //       // Scale the window container
+    //       windowPreview.window_container.set_scale(.5, .5);
+    //     });
+    //   });
+    // });
+
+    // Iterate through all workspaces views
+
   }
 
   safelyReorder(boxType, desiredOrder) {
