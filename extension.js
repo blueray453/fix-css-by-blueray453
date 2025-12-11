@@ -322,5 +322,9 @@ export default class NotificationThemeExtension extends Extension {
     // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
     // this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
     // this.getRolesInBox(Panel._rightBox, 'RIGHT BOX');
+    if (this._overviewShowingId) {
+      Main.overview.disconnect(this._overviewShowingId);
+      this._overviewShowingId = 0;
+    }
   }
 }
