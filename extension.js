@@ -107,6 +107,12 @@ export default class NotificationThemeExtension extends Extension {
 
     // No overview at start-up
     this._overviewHideSignalId = Main.layoutManager.connectObject('startup-complete', () => Main.overview.hide(), this);
+
+    // const workspacesDisplay = Main.overview._overview.controls._workspacesDisplay;
+    // workspacesDisplay.opacity = 0;
+    // workspacesDisplay.visible = false;
+    // workspacesDisplay.reactive = false;
+    // workspacesDisplay.setPrimaryWorkspaceVisible(false);
   }
 
   safelyReorder(boxType, desiredOrder) {
