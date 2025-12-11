@@ -164,12 +164,13 @@ export default class NotificationThemeExtension extends Extension {
     // // Save the original _init method
     // this._originalInit = WindowPreview.WindowPreview.prototype._init;
     const originalInit = WindowPreview.WindowPreview.prototype._init;
-    this._originalWindowPreviewInit = originalInit;
 
     // Override the _init method
     WindowPreview.WindowPreview.prototype._init = function (...args) {
       // Call the original _init
       originalInit.call(this, ...args);
+
+      this._title.show();
 
       // Center the window title
       const titleConstraints = this._title.get_constraints();
@@ -180,6 +181,34 @@ export default class NotificationThemeExtension extends Extension {
         }
       }
     };
+
+    const originalShowOverlay = WindowPreview.WindowPreview.prototype.showOverlay;
+    WindowPreview.WindowPreview.prototype.showOverlay = function (...args) {
+      originalShowOverlay.call(this, ...args);
+
+      // // Move the title to bottom once, but don't force show()
+      // const titleConstraints = this._title.get_constraints();
+      // for (const constraint of titleConstraints) {
+      //   if (constraint instanceof Clutter.AlignConstraint &&
+      //     constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
+      //     constraint.set_factor(0.5); // 0=top, 0.5=center, 1=bottom
+      //   }
+      // }
+
+      // Remove the title from Shell's animation handling
+      this._title.set_opacity(255);
+    };
+
+    const originalHideOverlay = WindowPreview.WindowPreview.prototype.hideOverlay;
+    WindowPreview.WindowPreview.prototype.hideOverlay = function (...args) {
+      originalHideOverlay.call(this, ...args);
+
+      // Keep the title visible, don't animate it
+      this._title.set_opacity(255);
+    };
+
+    this._originals = { originalInit, originalShowOverlay, originalHideOverlay };
+
 
     // this._overviewShowingId = Main.overview.connect('showing', () => {
     //   journal(`Showing main overview`);
@@ -361,9 +390,9 @@ export default class NotificationThemeExtension extends Extension {
       this._overviewShowingId = 0;
     }
 
-    if (this._originalWindowPreviewInit) {
-      WindowPreview.WindowPreview.prototype._init = this._originalWindowPreviewInit;
-      this._originalWindowPreviewInit = null;
-    }
+    const { originalInit, originalShowOverlay, originalHideOverlay } = this._originals;
+    WindowPreview.WindowPreview.prototype._init = originalInit;
+    WindowPreview.WindowPreview.prototype.showOverlay = originalShowOverlay;
+    WindowPreview.WindowPreview.prototype.hideOverlay = originalHideOverlay;
   }
 }
