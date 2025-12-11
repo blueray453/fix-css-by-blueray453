@@ -3,6 +3,7 @@ import Clutter from 'gi://Clutter';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as WindowPreview from 'resource:///org/gnome/shell/ui/windowPreview.js';
+import * as WorkspacesView from 'resource:///org/gnome/shell/ui/workspacesView.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
 const Panel = Main.panel;
