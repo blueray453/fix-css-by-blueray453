@@ -1,19 +1,11 @@
 import GLib from 'gi://GLib';
-import Clutter from 'gi://Clutter';
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as WindowPreview from 'resource:///org/gnome/shell/ui/windowPreview.js';
-import * as WorkspacesView from 'resource:///org/gnome/shell/ui/workspacesView.js';
 import { setLogging, setLogFn, journal } from './utils.js'
 
 const Panel = Main.panel;
 const SessionModePanel = Main.sessionMode.panel;
 const StatusArea = Panel.statusArea;
-
-let _originalUpdateWorkspacesState = null;
-let _originalInit = null;
-let _originalShowOverlay = null;
-let _originalHideOverlay = null;
 
 export default class NotificationThemeExtension extends Extension {
   constructor(metadata) {
@@ -112,116 +104,6 @@ export default class NotificationThemeExtension extends Extension {
 
     // Scroll on panel to change workspace
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
-
-    // No overview at start-up
-    this._overviewHideSignalId = Main.layoutManager.connectObject('startup-complete', () => Main.overview.hide(), this);
-
-    // const workspacesDisplay = Main.overview._overview.controls._workspacesDisplay;
-    // let _overviewShowingId = Main.overview.connect('showing', () => {
-    //   workspacesDisplay._workspacesViews.forEach(view => {
-
-    //     // scale workspace previews
-    //     view.set_scale(0.96, 0.96);
-
-    //     view._workspaces.forEach(workspace => {
-    //       workspace._windows.forEach(windowPreview => {
-
-    //         // center each title
-    //         windowPreview._title.set_opacity(255);
-    //         const constraints = windowPreview._title.get_constraints();
-    //         constraints.forEach(constraint => {
-    //           if (constraint instanceof Clutter.AlignConstraint &&
-    //             constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
-    //             constraint.factor = 0.5;
-    //           }
-    //         });
-    //       });
-    //     });
-    //   });
-    // });
-
-    if (!_originalUpdateWorkspacesState) {
-      _originalUpdateWorkspacesState = WorkspacesView.WorkspacesView.prototype._updateWorkspacesState;
-    }
-
-    WorkspacesView.WorkspacesView.prototype._updateWorkspacesState = function (...args) {
-      // Call the original function first
-      _originalUpdateWorkspacesState.call(this, ...args);
-
-      // Apply custom scaling on top
-      this._workspaces.forEach(w => {
-        w.set_scale(0.96, 0.96);
-      });
-    };
-
-    if (!_originalInit) {
-      _originalInit = WindowPreview.WindowPreview.prototype._init;
-    }
-
-    // Override the _init method
-    WindowPreview.WindowPreview.prototype._init = function (...args) {
-      // Call the original _init
-      _originalInit.call(this, ...args);
-
-      this._title.show();
-
-      // Center the window title
-      const titleConstraints = this._title.get_constraints();
-      for (const constraint of titleConstraints) {
-        if (constraint instanceof Clutter.AlignConstraint &&
-          constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
-          constraint.set_factor(0.5); // 0=top, 0.5=center, 1=bottom
-        }
-      }
-    };
-
-    if (!_originalShowOverlay) {
-      _originalShowOverlay = WindowPreview.WindowPreview.prototype.showOverlay;
-    }
-
-    WindowPreview.WindowPreview.prototype.showOverlay = function (...args) {
-      _originalShowOverlay.call(this, ...args);
-
-      // // Move the title to bottom once, but don't force show()
-      // const titleConstraints = this._title.get_constraints();
-      // for (const constraint of titleConstraints) {
-      //   if (constraint instanceof Clutter.AlignConstraint &&
-      //     constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
-      //     constraint.set_factor(0.5); // 0=top, 0.5=center, 1=bottom
-      //   }
-      // }
-
-      // Remove the title from Shell's animation handling
-      this._title.set_opacity(255);
-    };
-
-    if (!_originalHideOverlay) {
-      _originalHideOverlay = WindowPreview.WindowPreview.prototype.hideOverlay;
-    }
-
-    WindowPreview.WindowPreview.prototype.hideOverlay = function (...args) {
-      _originalHideOverlay.call(this, ...args);
-
-      // Keep the title visible, don't animate it
-      this._title.set_opacity(255);
-    };
-
-    // this._overviewShowingId = Main.overview.connect('showing', () => {
-    //   journal(`Showing main overview`);
-    //   journal(`workspacesDisplay ${workspacesDisplay}`);
-    //   // Iterate through all workspaces
-    //   workspacesDisplay._workspaces.forEach(workspace => {
-    //     journal(`Workspcae in overview`);
-    //     workspace._windows.forEach(windowPreview => {
-    //       journal(`windowPreview ${windowPreview}`);
-    //       // Scale the window container
-    //       windowPreview.window_container.set_scale(.5, .5);
-    //     });
-    //   });
-    // });
-
-    // Iterate through all workspaces views
-
   }
 
   safelyReorder(boxType, desiredOrder) {
@@ -345,11 +227,6 @@ export default class NotificationThemeExtension extends Extension {
     //   this._startupCompleteId = null;
     // }
 
-    if (this._overviewHideSignalId) {
-      Main.layoutManager.disconnectObject(this._overviewHideSignalId);
-      this._overviewHideSignalId = null;
-    }
-
     // // Disconnect overview signal (if using that approach)
     // if (this._overviewSignalId) {
     //   Main.overview.disconnectObject(this);
@@ -381,29 +258,5 @@ export default class NotificationThemeExtension extends Extension {
     // this.getRolesInBox(Panel._leftBox, 'LEFT BOX');
     // this.getRolesInBox(Panel._centerBox, 'CENTER BOX');
     // this.getRolesInBox(Panel._rightBox, 'RIGHT BOX');
-    if (this._overviewShowingId) {
-      Main.overview.disconnect(this._overviewShowingId);
-      this._overviewShowingId = 0;
-    }
-
-    if (_originalUpdateWorkspacesState) {
-      WorkspacesView.WorkspacesView.prototype._updateWorkspacesState = _originalUpdateWorkspacesState;
-      _originalUpdateWorkspacesState = null;
-    }
-
-    if (_originalInit) {
-      WindowPreview.WindowPreview.prototype._init = _originalInit;
-      _originalInit = null;
-    }
-
-    if (_originalShowOverlay) {
-      WindowPreview.WindowPreview.prototype.showOverlay = _originalShowOverlay;
-      _originalShowOverlay = null;
-    }
-
-    if (_originalHideOverlay) {
-      WindowPreview.WindowPreview.prototype.hideOverlay = _originalHideOverlay;
-      _originalHideOverlay = null;
-    }
   }
 }
