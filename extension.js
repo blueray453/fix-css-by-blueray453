@@ -8,11 +8,6 @@ const SessionModePanel = Main.sessionMode.panel;
 const StatusArea = Panel.statusArea;
 
 export default class NotificationThemeExtension extends Extension {
-  constructor(metadata) {
-    super(metadata);
-    this._themeSignalId = null;
-  }
-
   enable() {
     setLogFn((msg, error = false) => {
       let level;
