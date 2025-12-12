@@ -11,6 +11,9 @@ const SessionModePanel = Main.sessionMode.panel;
 const StatusArea = Panel.statusArea;
 
 let _originalUpdateWorkspacesState = null;
+let _originalInit = null;
+let _originalShowOverlay = null;
+let _originalHideOverlay = null;
 
 export default class NotificationThemeExtension extends Extension {
   constructor(metadata) {
@@ -151,14 +154,14 @@ export default class NotificationThemeExtension extends Extension {
       });
     };
 
-    // // Save the original _init method
-    // this._originalInit = WindowPreview.WindowPreview.prototype._init;
-    const originalInit = WindowPreview.WindowPreview.prototype._init;
+    if (!_originalInit) {
+      _originalInit = WindowPreview.WindowPreview.prototype._init;
+    }
 
     // Override the _init method
     WindowPreview.WindowPreview.prototype._init = function (...args) {
       // Call the original _init
-      originalInit.call(this, ...args);
+      _originalInit.call(this, ...args);
 
       this._title.show();
 
@@ -172,9 +175,12 @@ export default class NotificationThemeExtension extends Extension {
       }
     };
 
-    const originalShowOverlay = WindowPreview.WindowPreview.prototype.showOverlay;
+    if (!_originalShowOverlay) {
+      _originalShowOverlay = WindowPreview.WindowPreview.prototype.showOverlay;
+    }
+
     WindowPreview.WindowPreview.prototype.showOverlay = function (...args) {
-      originalShowOverlay.call(this, ...args);
+      _originalShowOverlay.call(this, ...args);
 
       // // Move the title to bottom once, but don't force show()
       // const titleConstraints = this._title.get_constraints();
@@ -189,16 +195,16 @@ export default class NotificationThemeExtension extends Extension {
       this._title.set_opacity(255);
     };
 
-    const originalHideOverlay = WindowPreview.WindowPreview.prototype.hideOverlay;
+    if (!_originalHideOverlay) {
+      _originalHideOverlay = WindowPreview.WindowPreview.prototype.hideOverlay;
+    }
+
     WindowPreview.WindowPreview.prototype.hideOverlay = function (...args) {
-      originalHideOverlay.call(this, ...args);
+      _originalHideOverlay.call(this, ...args);
 
       // Keep the title visible, don't animate it
       this._title.set_opacity(255);
     };
-
-    this._originals = { originalInit, originalShowOverlay, originalHideOverlay };
-
 
     // this._overviewShowingId = Main.overview.connect('showing', () => {
     //   journal(`Showing main overview`);
@@ -380,14 +386,24 @@ export default class NotificationThemeExtension extends Extension {
       this._overviewShowingId = 0;
     }
 
-    const { originalInit, originalShowOverlay, originalHideOverlay } = this._originals;
-    WindowPreview.WindowPreview.prototype._init = originalInit;
-    WindowPreview.WindowPreview.prototype.showOverlay = originalShowOverlay;
-    WindowPreview.WindowPreview.prototype.hideOverlay = originalHideOverlay;
-
     if (_originalUpdateWorkspacesState) {
       WorkspacesView.WorkspacesView.prototype._updateWorkspacesState = _originalUpdateWorkspacesState;
-      _originalUpdateWorkspacesState = null; // optional: free reference
+      _originalUpdateWorkspacesState = null;
+    }
+
+    if (_originalInit) {
+      WindowPreview.WindowPreview.prototype._init = _originalInit;
+      _originalInit = null;
+    }
+
+    if (_originalShowOverlay) {
+      WindowPreview.WindowPreview.prototype.showOverlay = _originalShowOverlay;
+      _originalShowOverlay = null;
+    }
+
+    if (_originalHideOverlay) {
+      WindowPreview.WindowPreview.prototype.hideOverlay = _originalHideOverlay;
+      _originalHideOverlay = null;
     }
   }
 }
