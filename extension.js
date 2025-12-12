@@ -114,52 +114,26 @@ export default class NotificationThemeExtension extends Extension {
     this._overviewHideSignalId = Main.layoutManager.connectObject('startup-complete', () => Main.overview.hide(), this);
 
     // const workspacesDisplay = Main.overview._overview.controls._workspacesDisplay;
-    // workspacesDisplay.opacity = 0;
-    // workspacesDisplay.visible = false;
-    // workspacesDisplay.reactive = false;
-    // workspacesDisplay.setPrimaryWorkspaceVisible(false);
-    // const workspacesDisplay = Main.overview._overview.controls._workspacesDisplay;
-
-    // this._overviewShowingId = Main.overview.connect('showing', () => {
+    // let _overviewShowingId = Main.overview.connect('showing', () => {
     //   workspacesDisplay._workspacesViews.forEach(view => {
-    //     // journal(`view: ${view}`);
+
+    //     // scale workspace previews
     //     view.set_scale(0.96, 0.96);
-    //     // view._workspaces.forEach(workspace => {
-    //     //   workspace._windows.forEach(windowPreview => {
-    //     //     let constraints = windowPreview._title.get_constraints();
-    //     //     constraints.forEach(constraint => {
-    //     //       if (constraint instanceof Clutter.AlignConstraint &&
-    //     //         constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
-    //     //         constraint.factor = 0.5; // Center vertically (0=top, 0.5=center, 1=bottom)
-    //     //       }
-    //     //     });
-    //     //   });
-    //     // });
-    //     // if (view._workspaces) {
-    //     //   view._workspaces.forEach(workspace => {
-    //     //     if (workspace._windows) {
-    //     //       const hasSingleWindow = workspace._windows.length === 1;
 
-    //     //       workspace._windows.forEach(windowPreview => {
-    //     //         if (hasSingleWindow) {
-    //     //           // Single window in any workspace
-    //     //           windowPreview.set_scale(1, 0.96);
-    //     //         } else {
-    //     //           // Multiple windows
-    //     //           windowPreview.set_scale(1, 1); // Default scale
-    //     //         }
-    //     //       });
-    //     //     }
-    //     //   });
-    //     // } else if (view._workspace && view._workspace._windows) {
-    //     //   // Handle SecondaryMonitorDisplay
-    //     //   const workspace = view._workspace;
-    //     //   const hasSingleWindow = workspace._windows.length === 1;
+    //     view._workspaces.forEach(workspace => {
+    //       workspace._windows.forEach(windowPreview => {
 
-    //     //   workspace._windows.forEach(windowPreview => {
-    //     //     windowPreview.set_scale(hasSingleWindow ? 1 : 1, hasSingleWindow ? 0.96 : 1);
-    //     //   });
-    //     // }
+    //         // center each title
+    //         windowPreview._title.set_opacity(255);
+    //         const constraints = windowPreview._title.get_constraints();
+    //         constraints.forEach(constraint => {
+    //           if (constraint instanceof Clutter.AlignConstraint &&
+    //             constraint.align_axis === Clutter.AlignAxis.Y_AXIS) {
+    //             constraint.factor = 0.5;
+    //           }
+    //         });
+    //       });
+    //     });
     //   });
     // });
 
