@@ -104,30 +104,6 @@ export default class NotificationThemeExtension extends Extension {
     }
   }
 
-  _getRolesInBox(box, boxName = '', log = true) {
-    const roles = [];
-
-    box.get_children().forEach((child, index) => {
-      let role = null;
-
-      for (const r in StatusArea) {
-        if (StatusArea[r].container === child) {
-          role = r;
-          break;
-        }
-      }
-
-      const roleName = role || 'unknown';
-      roles.push(roleName);
-
-      if (log) {
-        journal(`${boxName}[${index}]: ${roleName}`);
-      }
-    });
-
-    return roles;
-  }
-
   disable() {
     // Move panel back to top
     this._movePanelPosition(false);
@@ -144,9 +120,5 @@ export default class NotificationThemeExtension extends Extension {
     this._moveDate(false);
 
     this._disableWindowDemandAttention(false);
-
-    // this._getRolesInBox(Panel._leftBox, 'LEFT BOX');
-    // this._getRolesInBox(Panel._centerBox, 'CENTER BOX');
-    // this._getRolesInBox(Panel._rightBox, 'RIGHT BOX');
   }
 }
