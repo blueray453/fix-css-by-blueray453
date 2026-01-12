@@ -39,7 +39,7 @@ export default class NotificationThemeExtension extends Extension {
     // // Move panel to bottom
     this._movePanelPosition(true);
 
-    // this._toggleActivities(true);
+    this._toggleActivities(true);
 
     this._moveActivities(true);
 
@@ -108,7 +108,7 @@ export default class NotificationThemeExtension extends Extension {
     // Move panel back to top
     this._movePanelPosition(false);
 
-    // // this._toggleActivities(false);
+    this._toggleActivities(false);
 
     if (this.scrollEventId != null) {
       Main.panel.disconnect(this.scrollEventId);
