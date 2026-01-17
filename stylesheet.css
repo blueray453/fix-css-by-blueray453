@@ -3,18 +3,17 @@
   background-color: #000000;
 }
 
-/* #panel .clock-display-box {
-  spacing: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: 1px solid red;
-}
-
 #panel .clock-display-box .clock {
   margin: 0 !important;
   padding: 0 !important;
-  border: 1px solid green;
-} */
+  /* border: 1px solid green; */
+}
+
+#panel .messages-indicator {
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
 
 .popup-menu.panel-menu {
     margin-bottom: 0;
