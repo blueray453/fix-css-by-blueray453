@@ -1,6 +1,7 @@
 #panel {
   height: 160px;
   background-color: #000000;
+  font-size: 32px;
 }
 
 #panel .clock-display-box .clock {
