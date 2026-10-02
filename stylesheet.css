@@ -10,7 +10,7 @@
   /* border: 1px solid green; */
 }
 
-#panel .system-status-icon {
+#panel .panel-button .system-status-icon {
     icon-size: 32px; /* Explicitly forces status icon sizing */
 }
 
