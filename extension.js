@@ -33,6 +33,9 @@ export default class NotificationThemeExtension extends Extension {
 
     // Scroll on panel to change workspace
     this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
+
+    this._origFindDraggable = Main.panel._getDraggableWindowForPosition;
+    Main.panel._getDraggableWindowForPosition = () => null;
   }
 
   _moveActivities(active) {
@@ -97,6 +100,11 @@ export default class NotificationThemeExtension extends Extension {
     if (this.scrollEventId != null) {
       Main.panel.disconnect(this.scrollEventId);
       this.scrollEventId = null;
+    }
+
+    if (this._origFindDraggable) {
+      Main.panel._getDraggableWindowForPosition = this._origFindDraggable;
+      this._origFindDraggable = null;
     }
 
     this._moveActivities(false);
