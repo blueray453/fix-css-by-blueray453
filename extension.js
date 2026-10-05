@@ -1,3 +1,5 @@
+import GLib from 'gi://GLib';
+
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -34,6 +36,11 @@ export default class NotificationThemeExtension extends Extension {
     // Scroll on panel to change workspace
     this.scrollEventId = Main.panel.connect('scroll-event',
       (_actor, event) => Main.wm.handleWorkspaceScroll(event));
+
+    GLib.idle_add(GLib.PRIORITY_HIGH, () => {
+      Main.overview.hide();
+      return GLib.SOURCE_REMOVE;
+    });
   }
 
   // ---------------------------------------------------------------------
