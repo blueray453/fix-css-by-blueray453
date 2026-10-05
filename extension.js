@@ -8,86 +8,128 @@ import {
 
 const journal = createLogger(import.meta.url);
 
-const Panel = Main.panel;
-const SessionModePanel = Main.sessionMode.panel;
-const StatusArea = Panel.statusArea;
-
 export default class NotificationThemeExtension extends Extension {
   enable() {
     initLogging(this.uuid, 'both', false);
     journal(`Enabled`);
 
-    // Main.overview.dash.height = 0;
-    // Main.overview.dash.hide();
+    this._origPanelLayout = null;
+    this._origFindDraggable = null;
+    this._handlerid = null;
+    this.scrollEventId = null;
 
-    // // Move panel to bottom
+    // Move panel to bottom
     this._movePanelPosition(true);
 
+    // Rearrange indicators first, then hide Activities, because
+    // _updatePanel() re-shows the containers.
+    this._moveIndicators(true);
     this._toggleActivities(true);
 
-    this._moveActivities(true);
-
-    this._moveDate(true);
+    // Stop the panel from starting a window-move grab on press.
+    this._disablePanelWindowDrag(true);
 
     this._disableWindowDemandAttention(true);
 
     // Scroll on panel to change workspace
-    this.scrollEventId = Main.panel.connect('scroll-event', (_actor, event) => Main.wm.handleWorkspaceScroll(event));
-
-    this._origFindDraggable = Main.panel._getDraggableWindowForPosition;
-    Main.panel._getDraggableWindowForPosition = () => null;
+    this.scrollEventId = Main.panel.connect('scroll-event',
+      (_actor, event) => Main.wm.handleWorkspaceScroll(event));
   }
 
-  _moveActivities(active) {
+  // ---------------------------------------------------------------------
+  // Panel position
+  // ---------------------------------------------------------------------
+  _placePanel() {
+    const { panelBox, primaryMonitor: m } = Main.layoutManager;
+    if (!m) return;
+    panelBox.set_position(m.x, m.y + m.height - panelBox.height);
+  }
+
+  _movePanelPosition(active) {
+    const lm = Main.layoutManager;
     if (active) {
-      SessionModePanel.left = SessionModePanel.center.filter(item => item != 'activities')
-      SessionModePanel.right.push('activities');
-      // journal(`Left Array: ${SessionModePanel.left}`);
-      // journal(`Right Array: ${SessionModePanel.right}`);
+      this._placePanel();
+      // LayoutManager resets panelBox to the top on monitor changes, so
+      // reapply our position whenever that happens or the height changes.
+      lm.connectObject('monitors-changed', () => this._placePanel(), this);
+      lm.panelBox.connectObject('notify::height', () => this._placePanel(), this);
     } else {
-      SessionModePanel.right = SessionModePanel.right.filter(item => item != 'activities')
-      SessionModePanel.left.push('activities');
+      lm.disconnectObject(this);
+      lm.panelBox.disconnectObject(this);
+      const m = lm.primaryMonitor;
+      if (m) lm.panelBox.set_position(m.x, m.y);
     }
-
-    Main.panel._updatePanel();
   }
 
-  _moveDate(active) {
+  // ---------------------------------------------------------------------
+  // Activities / date placement
+  // ---------------------------------------------------------------------
+  _moveIndicators(active) {
+    const modePanel = Main.sessionMode.panel;
+
     if (active) {
-      SessionModePanel.center = SessionModePanel.center.filter(item => item != 'dateMenu')
-      SessionModePanel.right.splice(0, 0, 'dateMenu');
-    } else {
-      SessionModePanel.right = SessionModePanel.right.filter(item => item != 'dateMenu')
-      SessionModePanel.center.push('dateMenu');
+      // Save exact copies so disable() can restore without duplicates.
+      this._origPanelLayout = {
+        left: [...modePanel.left],
+        center: [...modePanel.center],
+        right: [...modePanel.right],
+      };
+
+      modePanel.left = modePanel.left.filter(i => i !== 'activities');
+      modePanel.center = modePanel.center.filter(i => i !== 'dateMenu');
+      modePanel.right = [
+        'dateMenu',
+        ...modePanel.right.filter(i => i !== 'activities' && i !== 'dateMenu'),
+        'activities',
+      ];
+    } else if (this._origPanelLayout) {
+      modePanel.left = [...this._origPanelLayout.left];
+      modePanel.center = [...this._origPanelLayout.center];
+      modePanel.right = [...this._origPanelLayout.right];
+      this._origPanelLayout = null;
     }
 
     Main.panel._updatePanel();
   }
 
   _toggleActivities(active) {
-    const activities = Main.panel.statusArea["activities"];
+    const activities = Main.panel.statusArea['activities'];
     if (!activities) return;
     if (active) activities.hide();
     else activities.show();
   }
 
-  _disableWindowDemandAttention(active) {
+  // ---------------------------------------------------------------------
+  // Disable the panel's "drag maximized window" behaviour.
+  //
+  // The panel's click gesture (recognize_on_press) calls
+  // _getDraggableWindowForPosition() when pressed and returns early if it
+  // finds no window. Returning null means no move grab is ever started.
+  // ---------------------------------------------------------------------
+  _disablePanelWindowDrag(active) {
+    const panel = Main.panel;
     if (active) {
-      this._handlerid = global.display.connect('window-demands-attention', function (display, window) {
-        Main.activateWindow(window);
-      });
-    }
-    else {
-      global.display.disconnect(this._handlerid);
-      this._handlerid = null;
+      if (this._origFindDraggable) return;
+      this._origFindDraggable = panel._getDraggableWindowForPosition;
+      panel._getDraggableWindowForPosition = () => null;
+    } else if (this._origFindDraggable) {
+      panel._getDraggableWindowForPosition = this._origFindDraggable;
+      this._origFindDraggable = null;
     }
   }
 
-  _movePanelPosition(active) {
+  // ---------------------------------------------------------------------
+  // Window demands attention -> just activate it
+  // ---------------------------------------------------------------------
+  _disableWindowDemandAttention(active) {
     if (active) {
-      Main.layoutManager.panelBox.set_position(0, global.get_screen_height() - Main.panel.height);
-    } else {
-      Main.layoutManager.panelBox.set_position(0, 0);
+      this._handlerid = global.display.connect('window-demands-attention',
+        (_display, window) => {
+          Main.activateWindow(window);
+        });
+    } else if (this._handlerid) {
+      global.display.disconnect(this._handlerid);
+      this._handlerid = null;
     }
   }
 
@@ -95,21 +137,16 @@ export default class NotificationThemeExtension extends Extension {
     // Move panel back to top
     this._movePanelPosition(false);
 
+    // Restore the stock panel layout, then show Activities again.
+    this._moveIndicators(false);
     this._toggleActivities(false);
+
+    this._disablePanelWindowDrag(false);
 
     if (this.scrollEventId != null) {
       Main.panel.disconnect(this.scrollEventId);
       this.scrollEventId = null;
     }
-
-    if (this._origFindDraggable) {
-      Main.panel._getDraggableWindowForPosition = this._origFindDraggable;
-      this._origFindDraggable = null;
-    }
-
-    this._moveActivities(false);
-
-    this._moveDate(false);
 
     this._disableWindowDemandAttention(false);
   }
