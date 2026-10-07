@@ -11,6 +11,7 @@ import {
 
 const journal = createLogger(import.meta.url);
 
+const Display = global.get_display();
 const WorkspaceManager = global.get_workspace_manager();
 
 export default class NotificationThemeExtension extends Extension {
@@ -183,12 +184,12 @@ export default class NotificationThemeExtension extends Extension {
   // ---------------------------------------------------------------------
   _disableWindowDemandAttention(active) {
     if (active) {
-      this._handlerid = global.display.connect('window-demands-attention',
+      this._handlerid = Display.connect('window-demands-attention',
         (_display, window) => {
           Main.activateWindow(window);
         });
     } else if (this._handlerid) {
-      global.display.disconnect(this._handlerid);
+      Display.disconnect(this._handlerid);
       this._handlerid = null;
     }
   }
