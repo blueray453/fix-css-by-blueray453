@@ -1,3 +1,4 @@
+import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
 
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
@@ -19,6 +20,7 @@ export default class NotificationThemeExtension extends Extension {
     this._origFindDraggable = null;
     this._handlerid = null;
     this.scrollEventId = null;
+    this._lastWrapTime = 0;
 
     // Move panel to bottom
     this._movePanelPosition(true);
@@ -33,14 +35,64 @@ export default class NotificationThemeExtension extends Extension {
 
     this._disableWindowDemandAttention(true);
 
-    // Scroll on panel to change workspace
+    // Scroll on panel to change workspace (wraps around at the ends)
     this.scrollEventId = Main.panel.connect('scroll-event',
-      (_actor, event) => Main.wm.handleWorkspaceScroll(event));
+      (_actor, event) => this._handleScroll(event));
 
     GLib.idle_add(GLib.PRIORITY_HIGH, () => {
       Main.overview.hide();
       return GLib.SOURCE_REMOVE;
     });
+  }
+
+  // ---------------------------------------------------------------------
+  // Workspace scroll: stock behaviour, with wrap-around at the ends
+  // ---------------------------------------------------------------------
+  _handleScroll(event) {
+    const wm = Main.wm;
+
+    if (event.type() !== Clutter.EventType.SCROLL)
+      return wm.handleWorkspaceScroll(event);
+
+    let step;
+    switch (event.get_scroll_direction()) {
+      case Clutter.ScrollDirection.UP:
+      case Clutter.ScrollDirection.LEFT:
+        step = -1;
+        break;
+      case Clutter.ScrollDirection.DOWN:
+      case Clutter.ScrollDirection.RIGHT:
+        step = 1;
+        break;
+      default:
+        return wm.handleWorkspaceScroll(event);
+    }
+
+    const wsm = global.workspace_manager;
+    const n = wsm.get_n_workspaces();
+    const idx = wsm.get_active_workspace_index();
+    const now = GLib.get_monotonic_time() / 1000; // ms
+
+    const atEdge = n > 1 &&
+      ((step > 0 && idx === n - 1) || (step < 0 && idx === 0));
+
+    // Normal case: let GNOME handle it, unless we just wrapped.
+    if (!atEdge) {
+      if (now - this._lastWrapTime < 150)
+        return Clutter.EVENT_STOP;
+      return wm.handleWorkspaceScroll(event);
+    }
+
+    // Edge case: skip if stock just moved us here or we just wrapped,
+    // so one flick doesn't chain moves together.
+    if (!wm._canScroll || now - this._lastWrapTime < 150)
+      return Clutter.EVENT_STOP;
+
+    this._lastWrapTime = now;
+    const target = step > 0 ? 0 : n - 1;   // last -> first, first -> last
+    wm.actionMoveWorkspace(wsm.get_workspace_by_index(target));
+
+    return Clutter.EVENT_STOP;
   }
 
   // ---------------------------------------------------------------------
