@@ -11,6 +11,8 @@ import {
 
 const journal = createLogger(import.meta.url);
 
+const WorkspaceManager = global.get_workspace_manager();
+
 export default class NotificationThemeExtension extends Extension {
   enable() {
     initLogging(this.uuid, 'both', false);
@@ -68,9 +70,8 @@ export default class NotificationThemeExtension extends Extension {
         return wm.handleWorkspaceScroll(event);
     }
 
-    const wsm = global.workspace_manager;
-    const n = wsm.get_n_workspaces();
-    const idx = wsm.get_active_workspace_index();
+    const n = WorkspaceManager.get_n_workspaces();
+    const idx = WorkspaceManager.get_active_workspace_index();
     const now = GLib.get_monotonic_time() / 1000; // ms
 
     const atEdge = n > 1 &&
@@ -90,7 +91,7 @@ export default class NotificationThemeExtension extends Extension {
 
     this._lastWrapTime = now;
     const target = step > 0 ? 0 : n - 1;   // last -> first, first -> last
-    wm.actionMoveWorkspace(wsm.get_workspace_by_index(target));
+    wm.actionMoveWorkspace(WorkspaceManager.get_workspace_by_index(target));
 
     return Clutter.EVENT_STOP;
   }
