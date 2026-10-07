@@ -16,19 +16,19 @@ export default class NotificationThemeExtension extends Extension {
     initLogging(this.uuid, 'both', false);
     journal(`Enabled`);
 
+    this._modePanel = null;
     this._origPanelLayout = null;
     this._origFindDraggable = null;
     this._stockAttentionHandler = null;
-    this.scrollEventId = null;
+    this._idleId = 0;
     this._lastWrapTime = 0;
 
     // Move panel to bottom
     this._movePanelPosition(true);
 
-    // Rearrange indicators first, then hide Activities, because
-    // _updatePanel() re-shows the containers.
+    // Rearrange indicators (Activities is removed from the layout entirely;
+    // _updatePanel() keeps indicators that are not listed hidden).
     this._moveIndicators(true);
-    this._toggleActivities(true);
 
     // Stop the panel from starting a window-move grab on press.
     this._disablePanelWindowDrag(true);
@@ -37,10 +37,11 @@ export default class NotificationThemeExtension extends Extension {
     this._replaceWindowAttentionHandler(true);
 
     // Scroll on panel to change workspace (wraps around at the ends)
-    this.scrollEventId = Main.panel.connect('scroll-event',
-      (_actor, event) => this._handleScroll(event));
+    Main.panel.connectObject('scroll-event',
+      (_actor, event) => this._handleScroll(event), this);
 
-    GLib.idle_add(GLib.PRIORITY_HIGH, () => {
+    this._idleId = GLib.idle_add(GLib.PRIORITY_HIGH, () => {
+      this._idleId = 0;
       Main.overview.hide();
       return GLib.SOURCE_REMOVE;
     });
@@ -123,40 +124,37 @@ export default class NotificationThemeExtension extends Extension {
 
   // ---------------------------------------------------------------------
   // Activities / date placement
+  //
+  // Panel._updatePanel() hides every indicator container and then shows
+  // only those listed in the session mode layout, so removing 'activities'
+  // from the layout is enough to keep it hidden. Restoring the layout
+  // brings it back.
   // ---------------------------------------------------------------------
   _moveIndicators(active) {
-    const modePanel = Main.sessionMode.panel;
-
     if (active) {
-      // Save exact copies so disable() can restore without duplicates.
+      if (this._modePanel) return;
+
+      // Keep a reference to the exact object we modify, so disable() restores
+      // it even if the session mode has changed in the meantime.
+      const panel = Main.sessionMode.panel;
+      this._modePanel = panel;
       this._origPanelLayout = {
-        left: [...modePanel.left],
-        center: [...modePanel.center],
-        right: [...modePanel.right],
+        left: [...panel.left],
+        center: [...panel.center],
+        right: [...panel.right],
       };
 
-      modePanel.left = modePanel.left.filter(i => i !== 'activities');
-      modePanel.center = modePanel.center.filter(i => i !== 'dateMenu');
-      modePanel.right = [
-        'dateMenu',
-        ...modePanel.right.filter(i => i !== 'activities' && i !== 'dateMenu'),
-        'activities',
-      ];
-    } else if (this._origPanelLayout) {
-      modePanel.left = [...this._origPanelLayout.left];
-      modePanel.center = [...this._origPanelLayout.center];
-      modePanel.right = [...this._origPanelLayout.right];
+      const drop = new Set(['activities', 'dateMenu']);
+      panel.left = panel.left.filter(i => !drop.has(i));
+      panel.center = panel.center.filter(i => !drop.has(i));
+      panel.right = ['dateMenu', ...panel.right.filter(i => !drop.has(i))];
+    } else if (this._modePanel) {
+      Object.assign(this._modePanel, this._origPanelLayout);
+      this._modePanel = null;
       this._origPanelLayout = null;
     }
 
     Main.panel._updatePanel();
-  }
-
-  _toggleActivities(active) {
-    const activities = Main.panel.statusArea['activities'];
-    if (!activities) return;
-    if (active) activities.hide();
-    else activities.show();
   }
 
   // ---------------------------------------------------------------------
@@ -224,19 +222,20 @@ export default class NotificationThemeExtension extends Extension {
   }
 
   disable() {
+    if (this._idleId) {
+      GLib.Source.remove(this._idleId);
+      this._idleId = 0;
+    }
+
+    Main.panel.disconnectObject(this);
+
     // Move panel back to top
     this._movePanelPosition(false);
 
-    // Restore the stock panel layout, then show Activities again.
+    // Restore the stock panel layout; _updatePanel() shows Activities again.
     this._moveIndicators(false);
-    this._toggleActivities(false);
 
     this._disablePanelWindowDrag(false);
-
-    if (this.scrollEventId != null) {
-      Main.panel.disconnect(this.scrollEventId);
-      this.scrollEventId = null;
-    }
 
     this._replaceWindowAttentionHandler(false);
   }
