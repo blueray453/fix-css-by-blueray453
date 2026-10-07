@@ -11,9 +11,6 @@ import {
 
 const journal = createLogger(import.meta.url);
 
-const Display = global.get_display();
-const WorkspaceManager = global.get_workspace_manager();
-
 export default class NotificationThemeExtension extends Extension {
   enable() {
     initLogging(this.uuid, 'both', false);
@@ -21,7 +18,7 @@ export default class NotificationThemeExtension extends Extension {
 
     this._origPanelLayout = null;
     this._origFindDraggable = null;
-    this._handlerid = null;
+    this._stockAttentionHandler = null;
     this.scrollEventId = null;
     this._lastWrapTime = 0;
 
@@ -36,7 +33,8 @@ export default class NotificationThemeExtension extends Extension {
     // Stop the panel from starting a window-move grab on press.
     this._disablePanelWindowDrag(true);
 
-    this._disableWindowDemandAttention(true);
+    // Replace "is ready" notifications with direct window activation.
+    this._replaceWindowAttentionHandler(true);
 
     // Scroll on panel to change workspace (wraps around at the ends)
     this.scrollEventId = Main.panel.connect('scroll-event',
@@ -53,6 +51,7 @@ export default class NotificationThemeExtension extends Extension {
   // ---------------------------------------------------------------------
   _handleScroll(event) {
     const wm = Main.wm;
+    const workspaceManager = global.workspace_manager;
 
     if (event.type() !== Clutter.EventType.SCROLL)
       return wm.handleWorkspaceScroll(event);
@@ -71,8 +70,8 @@ export default class NotificationThemeExtension extends Extension {
         return wm.handleWorkspaceScroll(event);
     }
 
-    const n = WorkspaceManager.get_n_workspaces();
-    const idx = WorkspaceManager.get_active_workspace_index();
+    const n = workspaceManager.get_n_workspaces();
+    const idx = workspaceManager.get_active_workspace_index();
     const now = GLib.get_monotonic_time() / 1000; // ms
 
     const atEdge = n > 1 &&
@@ -92,7 +91,7 @@ export default class NotificationThemeExtension extends Extension {
 
     this._lastWrapTime = now;
     const target = step > 0 ? 0 : n - 1;   // last -> first, first -> last
-    wm.actionMoveWorkspace(WorkspaceManager.get_workspace_by_index(target));
+    wm.actionMoveWorkspace(workspaceManager.get_workspace_by_index(target));
 
     return Clutter.EVENT_STOP;
   }
@@ -180,17 +179,47 @@ export default class NotificationThemeExtension extends Extension {
   }
 
   // ---------------------------------------------------------------------
-  // Window demands attention -> just activate it
+  // Window demands attention / marked urgent -> just activate it
+  //
+  // The stock WindowAttentionHandler connects to both signals using itself
+  // as the owner (connectObject), so disconnectObject(handler) removes both
+  // of its handlers and no "<window> is ready" notification is ever created.
   // ---------------------------------------------------------------------
-  _disableWindowDemandAttention(active) {
+  _replaceWindowAttentionHandler(active) {
+    const display = global.display;
+
     if (active) {
-      this._handlerid = Display.connect('window-demands-attention',
-        (_display, window) => {
-          Main.activateWindow(window);
-        });
-    } else if (this._handlerid) {
-      Display.disconnect(this._handlerid);
-      this._handlerid = null;
+      if (this._stockAttentionHandler) return;
+
+      this._stockAttentionHandler = Main.windowAttentionHandler;
+      if (this._stockAttentionHandler)
+        display.disconnectObject(this._stockAttentionHandler);
+
+      const activate = (_display, window) => {
+        // Same guard as stock: ignore focused and skip-taskbar windows
+        // (e.g. GIMP toolbars set urgency while GIMP itself is focused).
+        if (!window || window.has_focus() || window.is_skip_taskbar())
+          return;
+        Main.activateWindow(window);
+      };
+
+      display.connectObject(
+        'window-demands-attention', activate,
+        'window-marked-urgent', activate,
+        this);
+    } else {
+      display.disconnectObject(this);
+
+      // Restore the stock notification behaviour.
+      const h = this._stockAttentionHandler;
+      this._stockAttentionHandler = null;
+
+      if (h && typeof h._onWindowDemandsAttention === 'function') {
+        display.connectObject(
+          'window-demands-attention', h._onWindowDemandsAttention.bind(h),
+          'window-marked-urgent', h._onWindowDemandsAttention.bind(h),
+          h);
+      }
     }
   }
 
@@ -209,6 +238,6 @@ export default class NotificationThemeExtension extends Extension {
       this.scrollEventId = null;
     }
 
-    this._disableWindowDemandAttention(false);
+    this._replaceWindowAttentionHandler(false);
   }
 }
