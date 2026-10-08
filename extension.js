@@ -1,6 +1,7 @@
+import GLib from 'gi://GLib';
+
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import * as WorkspaceSwitcherPopup from 'resource:///org/gnome/shell/ui/workspaceSwitcherPopup.js';
 
 import {
   initLogging,
@@ -9,13 +10,15 @@ import {
 
 const journal = createLogger(import.meta.url);
 
+const SWITCHER_TIMEOUT = 600; // same as DISPLAY_TIMEOUT in the stock popup
+
 export default class NotificationThemeExtension extends Extension {
   enable() {
     initLogging(this.uuid, 'both', false);
     journal(`Enabled`);
 
     this._stockAttentionHandler = null;
-    this._origSwitcherDisplay = null;
+    this._switcherStub = null;
 
     // Replace "is ready" notifications with direct window activation.
     this._replaceWindowAttentionHandler(true);
@@ -77,32 +80,70 @@ export default class NotificationThemeExtension extends Extension {
   // ---------------------------------------------------------------------
   // Disable the workspace switcher popup
   //
-  // WindowManager._showWorkspaceSwitcher() creates the popup, connects a
-  // 'destroy' handler (which unblocks workspace updates and clears its
-  // reference), then calls popup.display(). Destroying the popup inside
-  // display() lets that handler run, so nothing is left in a bad state.
-  // The popup is hidden at construction and never mapped, so nothing is
-  // ever drawn.
+  // WindowManager._showWorkspaceSwitcher() only creates a real popup when
+  // Main.wm._workspaceSwitcherPopup is null; otherwise it just calls
+  // popup.display(). We put a stand-in object in that field so no popup is
+  // ever constructed.
+  //
+  // Because the real popup's 'destroy' handler is never connected, the stub
+  // does that handler's job itself: block workspace updates while "shown",
+  // then after the stock timeout unblock them and reset _isWorkspacePrepended.
+  // destroy() is also required because WindowManager._startSwitcher() calls
+  // it when Alt+Tab is pressed.
   // ---------------------------------------------------------------------
   _disableWorkspaceSwitcherPopup(active) {
-    const proto = WorkspaceSwitcherPopup.WorkspaceSwitcherPopup.prototype;
+    const wm = Main.wm;
 
     if (active) {
-      if (this._origSwitcherDisplay) return;
+      if (this._switcherStub) return;
 
-      this._origSwitcherDisplay = proto.display;
+      // Remove a real popup that may already be on screen. Its own destroy
+      // handler unblocks updates and nulls wm._workspaceSwitcherPopup.
+      wm._workspaceSwitcherPopup?.destroy();
 
-      proto.display = function (_activeWorkspaceIndex) {
-        this.destroy();
+      let timeoutId = 0;
+      let blocked = false;
+
+      // Mirrors the stock popup's destroy handler in _showWorkspaceSwitcher().
+      const release = () => {
+        if (timeoutId) {
+          GLib.source_remove(timeoutId);
+          timeoutId = 0;
+        }
+        if (blocked) {
+          blocked = false;
+          wm.unblockWorkspaceUpdates();
+        }
+        wm._isWorkspacePrepended = false;
       };
 
-      // Kill an instance that may already be on screen.
-      Main.wm._workspaceSwitcherPopup?.destroy();
-    } else {
-      if (!this._origSwitcherDisplay) return;
+      const stub = {
+        display() {
+          if (!blocked) {
+            blocked = true;
+            wm.blockWorkspaceUpdates();
+          }
+          if (timeoutId)
+            GLib.source_remove(timeoutId);
+          timeoutId = GLib.timeout_add_once(
+            GLib.PRIORITY_DEFAULT, SWITCHER_TIMEOUT, () => {
+              timeoutId = 0;
+              release();
+            });
+        },
+        destroy: release,
+      };
 
-      proto.display = this._origSwitcherDisplay;
-      this._origSwitcherDisplay = null;
+      this._switcherStub = stub;
+      wm._workspaceSwitcherPopup = stub;
+    } else {
+      if (!this._switcherStub) return;
+
+      // Releases the block, clears the timeout and resets the flag.
+      this._switcherStub.destroy();
+      if (wm._workspaceSwitcherPopup === this._switcherStub)
+        wm._workspaceSwitcherPopup = null;
+      this._switcherStub = null;
     }
   }
 }
