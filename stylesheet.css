@@ -132,29 +132,3 @@
 .login-dialog-bottom-button-group {
   spacing: 12px;
 }
-
-/* ---------- Notifications ---------- */
-.unlock-dialog-notifications-container .message,
-.unlock-dialog-notifications-container .unlock-dialog-notification-source {
-  background-color: rgba(7, 54, 66, 0.85);
-  color: #93a1a1;
-  border: 1px solid #586e75;
-  border-radius: 16px;
-}
-
-.unlock-dialog-notifications-container .message .message-header,
-.unlock-dialog-notification-label {
-  color: #eee8d5;
-}
-
-/* Critical notifications get a red edge */
-.unlock-dialog-notifications-container .message.critical,
-.unlock-dialog-notifications-container .unlock-dialog-notification-source.critical {
-  background-color: rgba(7, 54, 66, 0.95);
-  border-color: #dc322f;
-}
-
-.unlock-dialog-notification-count-text {
-  background-color: #268bd2;
-  color: #fdf6e3;
-}
