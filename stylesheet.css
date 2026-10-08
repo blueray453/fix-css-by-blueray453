@@ -132,3 +132,350 @@
 .login-dialog-bottom-button-group {
   spacing: 12px;
 }
+
+/* ===== Calendar / date menu (desktop only) ===== */
+
+/* Popover shell: these are BoxPointer properties, see notes */
+.datemenu-popover {
+  border-radius: 24px;
+  -arrow-background-color: #002b36; /* base03 */
+  -arrow-border-color: #586e75;     /* base01 */
+  -arrow-border-width: 1px;
+}
+
+#calendarArea {
+  padding: 12px;
+}
+
+/* ---------- Today card (weekday + date) ---------- */
+.datemenu-today-button {
+  background-color: #073642; /* base02 */
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.datemenu-today-button:hover,
+.datemenu-today-button:focus {
+  background-color: #0b4655;
+}
+
+.datemenu-today-button .day-label {
+  color: #2aa198; /* cyan */
+  font-weight: bold;
+}
+
+.datemenu-today-button .date-label {
+  color: #eee8d5; /* base2 */
+}
+
+/* ---------- Mini calendar ---------- */
+.calendar {
+  background-color: #073642;
+  border-radius: 16px;
+  padding: 6px;
+}
+
+/* Month header */
+.calendar .calendar-month-header .calendar-month-label {
+  color: #eee8d5 !important; /* stock uses !important */
+  font-weight: bold;
+  border-radius: 999px;
+}
+
+.calendar .calendar-month-header .calendar-month-label:hover,
+.calendar .calendar-month-header .calendar-month-label:focus {
+  background-color: rgba(42, 161, 152, 0.18);
+}
+
+.calendar .calendar-month-header .pager-button {
+  color: #93a1a1;
+  border-radius: 999px;
+}
+
+.calendar .calendar-month-header .pager-button:hover,
+.calendar .calendar-month-header .pager-button:focus {
+  color: #2aa198;
+  background-color: rgba(42, 161, 152, 0.18);
+}
+
+/* Weekday headings (Mon, Tue...) */
+.calendar .calendar-day-heading {
+  color: #586e75; /* base01, muted */
+  font-weight: bold;
+}
+
+/* Week numbers */
+.calendar .calendar-week-number {
+  background-color: rgba(88, 110, 117, 0.25);
+  color: #586e75;
+  border-radius: 8px;
+}
+
+/* Days */
+.calendar .calendar-day {
+  color: #93a1a1;
+  border-radius: 999px;
+}
+
+.calendar .calendar-day:hover,
+.calendar .calendar-day:focus {
+  background-color: rgba(42, 161, 152, 0.2);
+  color: #eee8d5;
+}
+
+.calendar .calendar-day.calendar-weekend {
+  color: #b58900; /* yellow, makes weekends stand out */
+}
+
+.calendar .calendar-day.calendar-other-month,
+.calendar .calendar-day.calendar-other-month.calendar-weekend {
+  color: #586e75;
+  font-weight: normal;
+}
+
+/* Selected day */
+.calendar .calendar-day:selected,
+.calendar .calendar-day:active {
+  background-color: #268bd2;
+  color: #fdf6e3;
+}
+
+/* Today */
+.calendar .calendar-day.calendar-today {
+  background-color: #2aa198;
+  color: #002b36 !important; /* stock uses !important */
+  font-weight: bold;
+}
+
+.calendar .calendar-day.calendar-today:hover,
+.calendar .calendar-day.calendar-today:focus {
+  background-color: #35b5ab;
+}
+
+/* ---------- Side cards (events, world clocks, weather) ---------- */
+.events-button,
+.world-clocks-button,
+.weather-button {
+  background-color: #073642;
+  color: #93a1a1;
+  border-radius: 16px;
+}
+
+.events-button:hover,
+.world-clocks-button:hover,
+.weather-button:hover,
+.events-button:focus,
+.world-clocks-button:focus,
+.weather-button:focus {
+  background-color: #0b4655;
+}
+
+/* Section titles */
+.events-button .events-box .events-title,
+.world-clocks-button .world-clocks-header,
+.weather-button .weather-box .weather-header-box .weather-header {
+  color: #2aa198;
+  font-weight: bold;
+}
+
+.world-clocks-button .world-clocks-header.no-world-clocks,
+.weather-button .weather-box .weather-header-box .weather-header.no-location {
+  color: #93a1a1;
+}
+
+/* Events */
+.events-button .events-box .events-list .event-summary {
+  color: #eee8d5;
+}
+
+.events-button .events-box .events-list .event-time,
+.events-button .events-box .events-list .event-placeholder {
+  color: #586e75;
+}
+
+/* World clocks */
+.world-clocks-button .world-clocks-grid .world-clocks-city {
+  color: #eee8d5;
+}
+
+.world-clocks-button .world-clocks-grid .world-clocks-time {
+  color: #b58900;
+}
+
+.world-clocks-button .world-clocks-grid .world-clocks-timezone {
+  color: #586e75;
+}
+
+/* Weather */
+.weather-button .weather-box .weather-grid .weather-forecast-time {
+  color: #586e75;
+}
+
+.weather-button .weather-box .weather-grid .weather-forecast-temp {
+  color: #eee8d5;
+}
+
+/* ===== Message list (date menu notifications) ===== */
+
+.message-list {
+  border-color: #073642; /* base02 divider next to the calendar */
+}
+
+.message-list .message-list-placeholder {
+  color: #586e75; /* "No Notifications" */
+}
+
+/* Do Not Disturb + Clear controls */
+.message-list-controls {
+  color: #93a1a1;
+}
+
+.message-list-controls .message-list-clear-button {
+  background-color: #073642;
+  color: #93a1a1;
+  border: 1px solid #586e75;
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+.message-list-controls .message-list-clear-button:hover,
+.message-list-controls .message-list-clear-button:focus {
+  background-color: #0b4655;
+  color: #2aa198;
+  border-color: #2aa198;
+}
+
+/* ---------- Notification groups ---------- */
+.message-notification-group .message-group-header .message-group-title {
+  color: #eee8d5;
+}
+
+.message-notification-group .message-collapse-button {
+  color: #93a1a1;
+  background-color: rgba(88, 110, 117, 0.25);
+}
+
+.message-notification-group .message-collapse-button:hover,
+.message-notification-group .message-collapse-button:focus {
+  color: #2aa198;
+  background-color: rgba(42, 161, 152, 0.2);
+}
+
+/* ---------- Message bubbles ---------- */
+.message {
+  background-color: #073642;
+  color: #93a1a1;
+  border: 1px solid #586e75;
+  border-radius: 18px;
+  padding: 8px;
+}
+
+/* Stacked messages fade toward the background */
+.message:second-in-stack {
+  background-color: #04303c;
+}
+
+.message:lower-in-stack {
+  background-color: #02303b;
+  border-color: #073642;
+}
+
+/* Header: app icon, name, time, buttons */
+.message .message-header {
+  color: #586e75;
+}
+
+.message .message-header .message-header-content .message-source-title {
+  color: #2aa198;
+  font-weight: bold;
+}
+
+.message .message-header .message-header-content .event-time {
+  color: #586e75;
+}
+
+.message .message-header .message-expand-button,
+.message .message-header .message-close-button {
+  color: #93a1a1;
+  border-radius: 999px;
+}
+
+.message .message-header .message-expand-button:hover,
+.message .message-header .message-close-button:hover,
+.message .message-header .message-expand-button:focus,
+.message .message-header .message-close-button:focus {
+  color: #eee8d5;
+  background-color: rgba(220, 50, 47, 0.25);
+}
+
+.message .message-header .message-expand-button:hover,
+.message .message-header .message-expand-button:focus {
+  background-color: rgba(42, 161, 152, 0.2);
+}
+
+/* Content */
+.message .message-box .message-content .message-title {
+  color: #eee8d5;
+  font-weight: bold;
+}
+
+.message .message-box .message-content {
+  color: #93a1a1;
+}
+
+.message .message-box .message-icon.message-themed-icon {
+  background-color: rgba(42, 161, 152, 0.18);
+  color: #2aa198;
+}
+
+/* Action buttons (Reply, Open, ...) */
+.message .message-action-bin StButton {
+  background-color: #002b36;
+  color: #93a1a1;
+  border: 1px solid #586e75;
+  border-radius: 999px;
+  padding: 4px 14px;
+}
+
+.message .message-action-bin StButton:hover,
+.message .message-action-bin StButton:focus {
+  background-color: #0b4655;
+  color: #2aa198;
+  border-color: #2aa198;
+}
+
+.message .message-action-bin StButton:active {
+  background-color: #268bd2;
+  color: #fdf6e3;
+  border-color: #268bd2;
+}
+
+/* Links inside messages */
+.url-highlighter {
+  link-color: #268bd2;
+}
+
+/* ---------- Media controls ---------- */
+.message-media-control {
+  color: #93a1a1;
+  border-radius: 999px;
+}
+
+.message-media-control:hover,
+.message-media-control:focus {
+  background-color: rgba(42, 161, 152, 0.2);
+  color: #2aa198;
+}
+
+.message-media-control:active {
+  background-color: #268bd2;
+  color: #fdf6e3;
+}
+
+.message-media-control:insensitive {
+  color: #586e75;
+}
+
+.media-message .message-icon {
+  border-radius: 12px !important; /* album art, stock uses !important */
+}
