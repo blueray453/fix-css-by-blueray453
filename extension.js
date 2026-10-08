@@ -1,5 +1,3 @@
-import GLib from 'gi://GLib';
-
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
@@ -16,16 +14,9 @@ export default class NotificationThemeExtension extends Extension {
     journal(`Enabled`);
 
     this._stockAttentionHandler = null;
-    this._idleId = 0;
 
     // Replace "is ready" notifications with direct window activation.
     this._replaceWindowAttentionHandler(true);
-
-    this._idleId = GLib.idle_add(GLib.PRIORITY_HIGH, () => {
-      this._idleId = 0;
-      Main.overview.hide();
-      return GLib.SOURCE_REMOVE;
-    });
   }
 
   // ---------------------------------------------------------------------
@@ -74,11 +65,6 @@ export default class NotificationThemeExtension extends Extension {
   }
 
   disable() {
-    if (this._idleId) {
-      GLib.Source.remove(this._idleId);
-      this._idleId = 0;
-    }
-
     this._replaceWindowAttentionHandler(false);
   }
 }
