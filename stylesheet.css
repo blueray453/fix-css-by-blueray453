@@ -382,7 +382,7 @@
 
 /* Header: app icon, name, time, buttons */
 .message .message-header {
-  color: red;
+  color: #586e75;
 }
 
 .message .message-header .message-header-content .message-source-title {
