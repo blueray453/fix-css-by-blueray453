@@ -1,5 +1,6 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
+import * as WorkspaceSwitcherPopup from 'resource:///org/gnome/shell/ui/workspaceSwitcherPopup.js';
 
 import {
   initLogging,
@@ -14,9 +15,18 @@ export default class NotificationThemeExtension extends Extension {
     journal(`Enabled`);
 
     this._stockAttentionHandler = null;
+    this._origSwitcherDisplay = null;
 
     // Replace "is ready" notifications with direct window activation.
     this._replaceWindowAttentionHandler(true);
+
+    // Never show the workspace switcher popup.
+    this._disableWorkspaceSwitcherPopup(true);
+  }
+
+  disable() {
+    this._replaceWindowAttentionHandler(false);
+    this._disableWorkspaceSwitcherPopup(false);
   }
 
   // ---------------------------------------------------------------------
@@ -64,7 +74,35 @@ export default class NotificationThemeExtension extends Extension {
     }
   }
 
-  disable() {
-    this._replaceWindowAttentionHandler(false);
+  // ---------------------------------------------------------------------
+  // Disable the workspace switcher popup
+  //
+  // WindowManager._showWorkspaceSwitcher() creates the popup, connects a
+  // 'destroy' handler (which unblocks workspace updates and clears its
+  // reference), then calls popup.display(). Destroying the popup inside
+  // display() lets that handler run, so nothing is left in a bad state.
+  // The popup is hidden at construction and never mapped, so nothing is
+  // ever drawn.
+  // ---------------------------------------------------------------------
+  _disableWorkspaceSwitcherPopup(active) {
+    const proto = WorkspaceSwitcherPopup.WorkspaceSwitcherPopup.prototype;
+
+    if (active) {
+      if (this._origSwitcherDisplay) return;
+
+      this._origSwitcherDisplay = proto.display;
+
+      proto.display = function (_activeWorkspaceIndex) {
+        this.destroy();
+      };
+
+      // Kill an instance that may already be on screen.
+      Main.wm._workspaceSwitcherPopup?.destroy();
+    } else {
+      if (!this._origSwitcherDisplay) return;
+
+      proto.display = this._origSwitcherDisplay;
+      this._origSwitcherDisplay = null;
+    }
   }
 }
