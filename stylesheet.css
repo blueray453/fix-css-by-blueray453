@@ -1,3 +1,9 @@
+/* const SOLARIZED = {
+    base01: '#586e75', base0: '#839496', base1: '#93a1a1', base2: '#eee8d5',
+    yellow: '#b58900', orange: '#cb4b16', red: '#dc322f', magenta: '#d33682',
+    violet: '#6c71c4', blue: '#268bd2', cyan: '#2aa198', green: '#859900',
+}; */
+
 .workspace-switcher {
     background: transparent;
     border: none;
@@ -17,4 +23,21 @@
     height: 0;
     border-radius: 0;
     opacity: 0;
+}
+
+/* Solarized dark */
+.unlock-dialog-clock .unlock-dialog-clock-time {
+  font-size: 110pt;
+  font-weight: 700;
+  color: #2aa198; /* cyan */
+}
+
+.unlock-dialog-clock .unlock-dialog-clock-date {
+  font-size: 32pt;
+  font-weight: 400;
+  color: #cb4b16; /* base1 */
+}
+
+.unlock-dialog-clock .unlock-dialog-clock-hint {
+  color: #839496; /* base0 */
 }
