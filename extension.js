@@ -1,4 +1,6 @@
+import Clutter from 'gi://Clutter';
 import GLib from 'gi://GLib';
+import GObject from 'gi://GObject';
 
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
@@ -12,6 +14,75 @@ const journal = createLogger(import.meta.url);
 
 const SWITCHER_TIMEOUT = 600; // same as DISPLAY_TIMEOUT in the stock popup
 
+// ---------------------------------------------------------------------------
+// Replacement layout manager for the calendar's MessageView.
+//
+// The stock MessageViewLayout allocates each message wrapper only its *min*
+// preferred height:
+//
+//     const [min, _] = child.get_preferred_height(width);
+//     box.y2 = box.y1 + min;
+//
+// As soon as the natural height of the message is larger than its minimum
+// (wrapped body text, expanded body, expanded action area, stacked group,
+// shrinking during the scale-in animation, ...), the message content paints
+// past the end of its box and the next message is drawn on top of the
+// previous message's `.message-box`.
+//
+// Using the natural height instead prevents the overlap.
+// ---------------------------------------------------------------------------
+const FixedMessageViewLayout = GObject.registerClass({
+  GTypeName: 'NotificationThemeFixedMessageViewLayout',
+}, class FixedMessageViewLayout extends Clutter.LayoutManager {
+  constructor(overlay) {
+    super();
+    this._overlay = overlay;
+  }
+
+  vfunc_get_preferred_width(container, forHeight) {
+    let min = 0;
+    let nat = 0;
+    for (const child of container.get_children()) {
+      const [minChild, natChild] = child.get_preferred_width(forHeight);
+      if (minChild > min)
+        min = minChild;
+      if (natChild > nat)
+        nat = natChild;
+    }
+    return [min, nat];
+  }
+
+  vfunc_get_preferred_height(container, forWidth) {
+    let min = 0;
+    let nat = 0;
+    for (const child of container.get_children()) {
+      const [minChild, natChild] = child.get_preferred_height(forWidth);
+      min += minChild;
+      nat += natChild;
+    }
+    return [min, nat];
+  }
+
+  vfunc_allocate(container, box) {
+    if (this._overlay?.visible)
+      this._overlay.allocate(box);
+
+    const width = box.x2 - box.x1;
+    for (const message of container.messages) {
+      const child = message.get_parent();
+      if (!child)
+        continue;
+
+      const [min, nat] = child.get_preferred_height(width);
+      // The stock code used `min`; use the natural height so the box is
+      // never shorter than what the message actually paints.
+      box.y2 = box.y1 + Math.max(min, nat);
+      child.allocate(box);
+      box.y1 = box.y2;
+    }
+  }
+});
+
 export default class NotificationThemeExtension extends Extension {
   enable() {
     initLogging(this.uuid, 'both', false);
@@ -20,16 +91,52 @@ export default class NotificationThemeExtension extends Extension {
     this._stockAttentionHandler = null;
     this._switcherStub = null;
 
+    this._messageView = null;
+    this._originalLayoutManager = null;
+
     // Replace "is ready" notifications with direct window activation.
     this._replaceWindowAttentionHandler(true);
 
     // Never show the workspace switcher popup.
     this._disableWorkspaceSwitcherPopup(true);
+
+    // Fix the calendar message list layout.
+    this._patchMessageViewLayout();
   }
 
   disable() {
+    this._restoreMessageViewLayout();
     this._replaceWindowAttentionHandler(false);
     this._disableWorkspaceSwitcherPopup(false);
+  }
+
+  // ---------------------------------------------------------------------
+  // Calendar message list layout fix
+  // ---------------------------------------------------------------------
+  _patchMessageViewLayout() {
+    // The date menu (and therefore the MessageView) is created during panel
+    // setup, before extensions are enabled, so it's normally already there.
+    const dateMenu = Main.panel.statusArea?.dateMenu;
+    const messageView = dateMenu?._messageList?._messageView;
+    if (!messageView)
+      return;
+
+    const oldLayoutManager = messageView.layout_manager;
+    if (!oldLayoutManager || oldLayoutManager instanceof FixedMessageViewLayout)
+      return;
+
+    this._messageView = messageView;
+    this._originalLayoutManager = oldLayoutManager;
+    messageView.layout_manager =
+      new FixedMessageViewLayout(oldLayoutManager._overlay);
+  }
+
+  _restoreMessageViewLayout() {
+    if (this._messageView && this._originalLayoutManager)
+      this._messageView.layout_manager = this._originalLayoutManager;
+
+    this._messageView = null;
+    this._originalLayoutManager = null;
   }
 
   // ---------------------------------------------------------------------

@@ -414,13 +414,16 @@
 }
 
 /* Content */
+.message .message-box .message-content {
+  color: #93a1a1;
+  spacing: 4px;
+}
+
 .message .message-box .message-content .message-title {
   color: #eee8d5;
   font-weight: bold;
-}
-
-.message .message-box .message-content {
-  color: #93a1a1;
+  min-height: 1.3em;
+  padding-bottom: 2px;
 }
 
 .message .message-box .message-icon.message-themed-icon {
