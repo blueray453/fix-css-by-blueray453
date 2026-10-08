@@ -1,8 +1,9 @@
-/* const SOLARIZED = {
-    base01: '#586e75', base0: '#839496', base1: '#93a1a1', base2: '#eee8d5',
-    yellow: '#b58900', orange: '#cb4b16', red: '#dc322f', magenta: '#d33682',
-    violet: '#6c71c4', blue: '#268bd2', cyan: '#2aa198', green: '#859900',
-}; */
+/* ===== Solarized dark =====
+   base03 #002b36  base02 #073642  base01 #586e75  base00 #657b83
+   base0  #839496  base1  #93a1a1  base2  #eee8d5
+   yellow #b58900  orange #cb4b16  red #dc322f  magenta #d33682
+   violet #6c71c4  blue #268bd2  cyan #2aa198  green #859900
+*/
 
 .workspace-switcher {
     background: transparent;
@@ -25,19 +26,135 @@
     opacity: 0;
 }
 
-/* Solarized dark */
+/* Backdrop behind everything (visible during the slide animation) */
+#lockDialogGroup {
+  background-color: #002b36;
+}
+
+/* ---------- Clock ---------- */
+.unlock-dialog-clock {
+  margin-top: 120px;
+  spacing: 1em;
+}
+
 .unlock-dialog-clock .unlock-dialog-clock-time {
   font-size: 110pt;
   font-weight: 700;
-  color: #2aa198; /* cyan */
+  color: #2aa198;
 }
 
 .unlock-dialog-clock .unlock-dialog-clock-date {
-  font-size: 32pt;
+  font-size: 28pt;
   font-weight: 400;
-  color: #cb4b16; /* base1 */
+  color: #268bd2;
 }
 
 .unlock-dialog-clock .unlock-dialog-clock-hint {
-  color: #839496; /* base0 */
+  color: #eee8d5;
+  background-color: rgba(7, 54, 66, 0.75); /* base02 */
+  border: 1px solid #586e75;
+  border-radius: 999px;
+  padding: 6px 20px;
+  font-weight: 500;
+}
+
+/* ---------- User avatar and name ---------- */
+.unlock-dialog .user-widget .user-widget-label {
+  color: #eee8d5;
+}
+
+.unlock-dialog .user-widget .user-icon {
+  background-color: #073642;
+  color: #93a1a1;
+  border: 3px solid #268bd2;
+}
+
+/* ---------- Password entry ---------- */
+.unlock-dialog .login-dialog-prompt-entry {
+  background-color: rgba(7, 54, 66, 0.85);
+  color: #eee8d5;
+  caret-color: #2aa198;
+  selection-background-color: #268bd2;
+  selected-color: #fdf6e3;
+  border: 2px solid #586e75;
+  border-radius: 14px;
+  box-shadow: none;
+}
+
+.unlock-dialog .login-dialog-prompt-entry:focus {
+  border-color: #2aa198;
+  box-shadow: 0 0 0 3px rgba(42, 161, 152, 0.35);
+}
+
+.unlock-dialog .login-dialog-prompt-entry StLabel.hint-text {
+  color: #586e75;
+}
+
+/* Messages */
+.unlock-dialog .login-dialog-message,
+.unlock-dialog .login-dialog-message-hint {
+  color: #93a1a1;
+}
+
+.unlock-dialog .caps-lock-warning-label,
+.unlock-dialog .login-dialog-message-warning {
+  color: #b58900;
+}
+
+/* ---------- Buttons ---------- */
+.unlock-dialog .button,
+.unlock-dialog .icon-button,
+.unlock-dialog .login-dialog-button {
+  background-color: rgba(7, 54, 66, 0.8);
+  color: #93a1a1;
+  border: 1px solid #586e75;
+}
+
+.unlock-dialog .button:hover,
+.unlock-dialog .icon-button:hover,
+.unlock-dialog .login-dialog-button:hover,
+.unlock-dialog .button:focus,
+.unlock-dialog .icon-button:focus,
+.unlock-dialog .login-dialog-button:focus {
+  background-color: #073642;
+  color: #eee8d5;
+  border-color: #2aa198;
+}
+
+.unlock-dialog .button:active,
+.unlock-dialog .icon-button:active,
+.unlock-dialog .login-dialog-button:active {
+  background-color: #268bd2;
+  color: #fdf6e3;
+  border-color: #268bd2;
+}
+
+.login-dialog-bottom-button-group {
+  spacing: 12px;
+}
+
+/* ---------- Notifications ---------- */
+.unlock-dialog-notifications-container .message,
+.unlock-dialog-notifications-container .unlock-dialog-notification-source {
+  background-color: rgba(7, 54, 66, 0.85);
+  color: #93a1a1;
+  border: 1px solid #586e75;
+  border-radius: 16px;
+}
+
+.unlock-dialog-notifications-container .message .message-header,
+.unlock-dialog-notification-label {
+  color: #eee8d5;
+}
+
+/* Critical notifications get a red edge */
+.unlock-dialog-notifications-container .message.critical,
+.unlock-dialog-notifications-container .unlock-dialog-notification-source.critical {
+  background-color: rgba(7, 54, 66, 0.95);
+  border-color: #dc322f;
+}
+
+.unlock-dialog-notification-count-text {
+  background-color: #268bd2;
+  color: #fdf6e3;
 }
